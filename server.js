@@ -1,5 +1,5 @@
 const express = require('express');
-const { Pool } = require('pg');
+const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 
@@ -13,51 +13,67 @@ app.use(express.json());
 // Serve static files from "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// PostgreSQL connection (Render provides DATABASE_URL)
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false   // Render requires SSL
+// ============================================================
+// MySQL Connection using DATABASE_URL (Aiven)
+// ============================================================
+// Render lo environment variable ga DATABASE_URL ni set cheyyandi.
+// Example: mysql://avnadmin:password@host:port/defaultdb
+const pool = mysql.createPool(process.env.DATABASE_URL);
+
+// Connection check
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ MySQL connection error:', err.message);
+        return;
     }
+    console.log('✅ MySQL connected successfully! (Aiven)');
+    connection.release();
+
+    // ============================================================
+    // Create table if not exists (on startup)
+    // ============================================================
+    const createTableQuery = `
+        CREATE TABLE IF NOT EXISTS reel_views (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50),
+            reel_filename VARCHAR(255),
+            latitude DECIMAL(10,8),
+            longitude DECIMAL(11,8),
+            viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+    pool.query(createTableQuery, (err, result) => {
+        if (err) {
+            console.error('❌ Table creation error:', err.message);
+        } else {
+            console.log('✅ Table "reel_views" is ready');
+        }
+    });
 });
 
-// Create table if not exists (on startup)
-pool.query(`
-    CREATE TABLE IF NOT EXISTS reel_views (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50),
-        reel_filename VARCHAR(255),
-        latitude DECIMAL(10,8),
-        longitude DECIMAL(11,8),
-        viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-`).then(() => {
-    console.log('✅ Table "reel_views" is ready');
-}).catch(err => {
-    console.error('❌ Table creation error:', err);
-});
-
+// ============================================================
 // API endpoint to log reel view
-app.post('/api/log-reel-view', async (req, res) => {
+// ============================================================
+app.post('/api/log-reel-view', (req, res) => {
     const { username, reelFilename, latitude, longitude } = req.body;
 
     if (!username || !reelFilename || latitude === undefined || longitude === undefined) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    try {
-        const query = `
-            INSERT INTO reel_views (username, reel_filename, latitude, longitude)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id;
-        `;
-        const values = [username, reelFilename, latitude, longitude];
-        const result = await pool.query(query, values);
-        res.json({ success: true, id: result.rows[0].id });
-    } catch (err) {
-        console.error('❌ Database insert error:', err);
-        res.status(500).json({ error: 'Database error' });
-    }
+    const query = `
+        INSERT INTO reel_views (username, reel_filename, latitude, longitude)
+        VALUES (?, ?, ?, ?)
+    `;
+    const values = [username, reelFilename, latitude, longitude];
+
+    pool.query(query, values, (err, result) => {
+        if (err) {
+            console.error('❌ Database insert error:', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json({ success: true, id: result.insertId });
+    });
 });
 
 // Start server
