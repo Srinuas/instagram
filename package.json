@@ -1,7 +1,7 @@
 {
   "name": "instagram-clone",
   "version": "1.0.0",
-  "description": "Instagram clone with reel location tracking using MySQL (Aiven)",
+  "description": "Instagram clone with reel location tracking (MySQL)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -3,9 +3,7 @@
 // ============================================================
 
 const USERS = [
-    // Main user for Reels (4 videos)
-    { id: 1, username: 'ab_comedy_182', name: 'AB Comedy', avatar: 'home/profiles/ab_comedy_182.jpg' },
-    // Users for Stories (10 stories)
+    { id: +1, username: 'ab_comedy_182', name: 'AB Comedy', avatar: 'home/profiles/ab_comedy_182.jpg' },
     { id: 2, username: 'nikhil_entertainment_', name: 'Nikhil Entertainment', avatar: 'stories/profiles/iimage1.jpg' },
     { id: 3, username: 'funny_kid_24', name: 'Funny Kid', avatar: 'stories/profiles/vimage2.jpg' },
     { id: 4, username: 'comedy_star', name: 'Comedy Star', avatar: 'stories/profiles/vimage3.jpg' },
