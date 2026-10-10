@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reel App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Hidden Admin Trigger -->
+        <div class="header" ondblclick="document.getElementById('admin-modal').style.display='block'">
+            <span>&larr; Reels</span>
+        </div>
+
+        <video id="reelVideo" autoplay loop playsinline muted>
+            <source src="reel.mp4" type="video/mp4">
+        </video>
+        
+        <audio id="reelAudio" src="music.mp3" autoplay loop></audio>
+
+        <div class="right-sidebar">
+            <div class="icon">❤️<span>1M</span></div>
+            <div class="icon">💬<span>3,028</span></div>
+            <div class="icon">🔄<span>4,739</span></div>
+            <div class="icon">↗️<span>110K</span></div>
+        </div>
+
+        <div class="bottom-info">
+            <div class="floating-avatars">
+                <img src="float_img1.jpg" class="float-img">
+                <img src="float_img2.jpg" class="float-img">
+                <img src="float_img3.jpg" class="float-img">
+            </div>
+            <div class="user-row">
+                <img src="profile_img1.jpg" class="profile-img">
+                <span class="username">sanjkayy</span>
+                <button class="follow-btn">Follow</button>
+            </div>
+            <div class="caption">Your fav stranger 🌹</div>
+        </div>
+
+        <!-- Hidden Admin Login Modal -->
+        <div id="admin-modal" class="modal" style="display:none;">
+            <h3>Admin Login</h3>
+            <input type="password" id="pin-input" placeholder="Enter PIN">
+            <button onclick="attemptLogin()">Submit</button>
+            <button onclick="document.getElementById('admin-modal').style.display='none'">Close</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

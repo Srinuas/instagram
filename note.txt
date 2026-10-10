@@ -1,0 +1,29 @@
+my-reel-app/
+├── .env
+├── .gitignore
+├── .dockerignore
+├── Dockerfile
+├── database/
+│   └── init_db.py
+├── backend/
+│   ├── app.py
+│   └── requirements.txt
+└── frontend/
+    ├── index.html
+    ├── admin.html
+    ├── style.css
+    ├── script.js
+    ├── reel.mp4
+    ├── music.mp3
+    ├── profile_img1.jpg
+    ├── float_img1.jpg
+    ├── float_img2.jpg
+    └── float_img3.jpg
+
+
+Based on the reference image 1000444735.jpg, 
+the user interface is built using a layered approach with CSS absolute positioning:   
+Base Layer: The video tag takes up 100% of the mobile screen (object-fit: cover) acting as the background.   
+Top Header: The "← Reels" text sits at the top left. This is also our hidden trigger—double-tapping this opens the admin PIN prompt.   
+Right Sidebar: Positioned at the bottom-right, this contains a vertical flexbox for the Like, Comment, and Share icons along with their respective metrics.   
+Bottom Info: Positioned at the bottom-left, this contains the overlapping floating avatar circles, the main profile image, the username, the "Follow" button, and the text caption.  
