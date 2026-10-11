@@ -19,6 +19,7 @@ my-reel-app/
     ├── float_img2.jpg
     └── float_img3.jpg
 
+############ Implemented with user IP based ###############
 
 Based on the reference image 1000444735.jpg, 
 the user interface is built using a layered approach with CSS absolute positioning:   

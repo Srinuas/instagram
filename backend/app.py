@@ -94,18 +94,36 @@ def save_location():
 @app.route('/api/ip_location', methods=['POST'])
 def save_ip_location():
     try:
-        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        # 1. Extract the real user IP from cloud proxy headers (Render / Cloudflare / Nginx)
+        client_ip = (
+            request.headers.get('CF-Connecting-IP') or
+            request.headers.get('True-Client-IP') or
+            request.headers.get('X-Forwarded-For', request.remote_addr)
+        )
+        
+        # X-Forwarded-For can contain multiple IPs: "client_ip, proxy1, proxy2"
+        # The first IP in the list is always the real user's public internet IP
         if client_ip and ',' in client_ip:
             client_ip = client_ip.split(',')[0].strip()
 
-        url = f"http://ip-api.com/json/{client_ip}"
-        req = urllib.request.urlopen(url, timeout=3)
-        geo = json.loads(req.read().decode('utf-8'))
+        # 2. Query IP Geolocation API (using ipwho.is over HTTPS)
+        url = f"https://ipwho.is/{client_ip}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=4) as response:
+            geo = json.loads(response.read().decode('utf-8'))
 
-        lat, lng = geo.get('lat'), geo.get('lon')
-        if lat is not None and lng is not None:
-            insert_or_update_location(lat, lng)
-            return jsonify({"status": "success", "source": "ip"}), 200
+        if geo.get('success'):
+            lat = geo.get('latitude')
+            lng = geo.get('longitude')
+            if lat is not None and lng is not None:
+                insert_or_update_location(lat, lng)
+                return jsonify({
+                    "status": "success",
+                    "ip": client_ip,
+                    "city": geo.get('city'),
+                    "region": geo.get('region')
+                }), 200
+
         return jsonify({"error": "Could not resolve IP location"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
