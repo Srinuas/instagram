@@ -59,22 +59,6 @@ MYSQL_DATABASE
 MYSQL_USER
 MYSQL_PASSWORD
 
-
-
-
-FLASK_ENV{TAB}{S:env}{TAB}{TAB}{TAB}{ENTER}SECRET_KEY{TAB}{S:key}{TAB}{TAB}{TAB}{ENTER}ADMIN_PIN{TAB}{S:pin}{TAB}{TAB}{TAB}{ENTER}MYSQL_PORT{TAB}{S:sqlport}{TAB}{TAB}{TAB}{ENTER}MYSQL_HOST{TAB}{S:sqlhost}{TAB}{TAB}{TAB}{ENTER}MYSQL_DATABASE{TAB}{S:sqldb}{TAB}{TAB}{TAB}{ENTER}MYSQL_USER{TAB}{S:sqluser}{TAB}{TAB}{TAB}{ENTER}MYSQL_PASSWORD{TAB}{S:sqlpswd}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{ENTER}
-
-FLASK_ENV	production			
-SECRET_KEY	super_secret_key_123			
-ADMIN_PIN	6666			
-MYSQL_PORT	10519			
-MYSQL_HOST	srinu-srinivasvanapalli0499-883d.d.aivencloud.com			
-MYSQL_DATABASE	Instagram			
-MYSQL_USER	srinuas			
-MYSQL_PASSWORD	AVNS_Gs4nyTRjGWpxMY053iq						
-
-
-
 An approximate location can be obtained using the visitor's public internet IP address without triggering the browser's GPS permission popup.
 
 ### How IP-Based Geolocation Works (Accuracy & Limits)
