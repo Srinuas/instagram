@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, send_from_directory, session, redirect
 from dotenv import load_dotenv
 import mysql.connector
+import urllib.request
+import json
 import os
 
 load_dotenv()
@@ -36,9 +38,38 @@ def init_table():
         conn.commit()
         cursor.close()
         conn.close()
-        print("Database table verified.")
     except Exception as e:
-        print("Database connection/init error:", e)
+        print("Database init error:", e)
+
+def insert_or_update_location(lat, lng):
+    """Avoids duplicate rows by checking if rounded coordinates already exist."""
+    lat_val = round(float(lat), 4)
+    lng_val = round(float(lng), 4)
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    # Check if this coordinate already exists (within 4 decimal places)
+    cursor.execute('''
+        SELECT id FROM locations 
+        WHERE ROUND(latitude, 4) = %s AND ROUND(longitude, 4) = %s
+        LIMIT 1
+    ''', (lat_val, lng_val))
+    existing = cursor.fetchone()
+
+    if existing:
+        # Update timestamp of existing record instead of creating a duplicate
+        cursor.execute('''
+            UPDATE locations SET timestamp = CURRENT_TIMESTAMP WHERE id = %s
+        ''', (existing['id'],))
+    else:
+        cursor.execute('''
+            INSERT INTO locations (latitude, longitude) VALUES (%s, %s)
+        ''', (lat_val, lng_val))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 @app.route('/')
 def index():
@@ -54,16 +85,30 @@ def save_location():
     lat, lng = data.get('lat'), data.get('lng')
     if lat is not None and lng is not None:
         try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO locations (latitude, longitude) VALUES (%s, %s)', (lat, lng))
-            conn.commit()
-            cursor.close()
-            conn.close()
+            insert_or_update_location(lat, lng)
             return jsonify({"status": "success"}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     return jsonify({"error": "Missing data"}), 400
+
+@app.route('/api/ip_location', methods=['POST'])
+def save_ip_location():
+    try:
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if client_ip and ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+
+        url = f"http://ip-api.com/json/{client_ip}"
+        req = urllib.request.urlopen(url, timeout=3)
+        geo = json.loads(req.read().decode('utf-8'))
+
+        lat, lng = geo.get('lat'), geo.get('lon')
+        if lat is not None and lng is not None:
+            insert_or_update_location(lat, lng)
+            return jsonify({"status": "success", "source": "ip"}), 200
+        return jsonify({"error": "Could not resolve IP location"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -86,7 +131,17 @@ def get_locations():
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT id, latitude, longitude, timestamp FROM locations ORDER BY timestamp DESC')
+        # Groups any old duplicate rows so only unique locations are returned
+        cursor.execute('''
+            SELECT 
+                MAX(id) AS id,
+                ROUND(latitude, 4) AS latitude,
+                ROUND(longitude, 4) AS longitude,
+                MAX(timestamp) AS timestamp
+            FROM locations
+            GROUP BY ROUND(latitude, 4), ROUND(longitude, 4)
+            ORDER BY timestamp DESC
+        ''')
         locations = cursor.fetchall()
         cursor.close()
         conn.close()
