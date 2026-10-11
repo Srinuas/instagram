@@ -14,7 +14,6 @@ my-reel-app/
     ├── style.css
     ├── script.js
     ├── reel.mp4
-    ├── music.mp3
     ├── profile_img1.jpg
     ├── float_img1.jpg
     ├── float_img2.jpg
