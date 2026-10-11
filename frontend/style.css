@@ -29,13 +29,31 @@ body {
     background: #111;
 }
 
+/* Dark bottom gradient so white buttons & text are clearly visible on bright videos */
+.video-section::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 55%;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.7) 0%,
+        rgba(0, 0, 0, 0.28) 45%,
+        rgba(0, 0, 0, 0) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
 video {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* Header */
+/* Top Header */
 .header {
     position: absolute;
     top: 18px;
@@ -47,40 +65,46 @@ video {
     font-size: 20px;
     font-weight: 700;
     z-index: 10;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     cursor: pointer;
     user-select: none;
 }
 
-/* Center Mute Indicator */
+/* Center Mute/Unmute Indicator - Hidden by default, pops up on tap */
 .mute-indicator {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.55);
+    transform: translate(-50%, -50%) scale(0.85);
+    background: rgba(0, 0, 0, 0.65);
     color: white;
-    width: 52px;
-    height: 52px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 26px;
     z-index: 9;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    opacity: 0; /* Starts invisible */
+    transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-/* Right Sidebar - Vertically Stacked Icons & Counts */
+.mute-indicator.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Right Sidebar - Exact Instagram Size & Position */
 .right-sidebar {
     position: absolute;
-    right: 14px;
-    bottom: 28px;
+    right: 16px;
+    bottom: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
     color: white;
     z-index: 10;
 }
@@ -91,17 +115,87 @@ video {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.55));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+    transition: transform 0.15s ease;
+}
+
+.right-sidebar .action-btn:active {
+    transform: scale(0.88);
+}
+
+.right-sidebar .action-btn svg {
+    width: 30px;
+    height: 30px;
+    display: block;
 }
 
 .right-sidebar .action-btn .count {
     display: block;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
-    color: #fff;
-    margin-top: 5px;
+    color: #ffffff;
+    margin-top: 7px;
+    line-height: 1;
     text-align: center;
     letter-spacing: 0.2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+/* Bottom-right rounded square audio cover box */
+
+/* Container under Save button that switches every 5 seconds */
+.bottom-switcher {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottom-switcher .switch-item {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* State 1: Two horizontal lines (visible 0s - 5s) */
+.lines-icon {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+    animation: toggleLines 10s infinite ease-in-out;
+}
+
+/* State 2: Rounded square profile image (visible 5s - 10s) */
+.audio-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    border: 2px solid #ffffff;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    animation: toggleBox 10s infinite ease-in-out;
+}
+
+.audio-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 10-second total cycle = 5 seconds per icon */
+@keyframes toggleLines {
+    0%, 45%   { opacity: 1; transform: scale(1); }
+    50%, 95%  { opacity: 0; transform: scale(0.75); }
+    100%      { opacity: 1; transform: scale(1); }
+}
+
+@keyframes toggleBox {
+    0%, 45%   { opacity: 0; transform: scale(0.75); }
+    50%, 95%  { opacity: 1; transform: scale(1); }
+    100%      { opacity: 0; transform: scale(0.75); }
 }
 
 /* Bottom Left Overlay */
@@ -130,7 +224,6 @@ video {
     will-change: transform;
 }
 
-/* Individual organic floating paths (60fps hardware accelerated) */
 .float-item.item-1 {
     animation: floatLeft 3.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
@@ -163,7 +256,7 @@ video {
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
 }
 
 .heart-badge {
@@ -173,7 +266,7 @@ video {
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
 
 /* User Profile Row */
@@ -206,7 +299,7 @@ video {
 .user-meta {
     display: flex;
     flex-direction: column;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .username {
@@ -233,37 +326,21 @@ video {
 
 .caption {
     font-size: 14px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Admin Modal */
-.modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    z-index: 100;
-    text-align: center;
-    width: 80%;
-    max-width: 280px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-}
-
-/* Instagram Reel Bottom Progress & Scrubbing Bar */
+/* Bottom Video Scrubber / Progress Bar */
 .scrubber-container {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 26px; /* Generous invisible touch target for mobile fingers */
+    height: 26px;
     display: flex;
     align-items: flex-end;
     z-index: 25;
     cursor: pointer;
-    touch-action: none; /* Prevents mobile browser gestures while scrubbing */
+    touch-action: none;
 }
 
 .scrubber-track {
@@ -294,7 +371,6 @@ video {
     transition: transform 0.15s ease;
 }
 
-/* Active state while user is touching/dragging the bar */
 .scrubber-container.scrubbing .scrubber-track {
     height: 6px;
 }
@@ -303,7 +379,6 @@ video {
     transform: translateY(-50%) scale(1);
 }
 
-/* Floating timestamp (0:04 / 0:15) while scrubbing */
 .scrubber-time {
     position: absolute;
     bottom: 22px;
@@ -324,6 +399,60 @@ video {
     opacity: 1;
 }
 
-.modal h3 { margin-bottom: 12px; color: #111; }
-.modal input { padding: 10px; margin-bottom: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; }
-.modal button { padding: 8px 16px; cursor: pointer; margin: 4px; border: none; border-radius: 6px; background: #0095f6; color: white; font-weight: 600; }
+/* Admin Modal */
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 22px 20px;
+    border-radius: 14px;
+    z-index: 100;
+    text-align: center;
+    width: 82%;
+    max-width: 290px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+}
+
+.modal h3 {
+    margin-bottom: 14px;
+    color: #111;
+    font-size: 18px;
+}
+
+.modal input {
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 10px 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.modal-actions .submit-btn {
+    background: #0095f6;
+    color: white;
+}
+
+.modal-actions .cancel-btn {
+    background: #e4e6eb;
+    color: #111;
+}
