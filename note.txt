@@ -28,6 +28,7 @@ Top Header: The "← Reels" text sits at the top left. This is also our hidden t
 Right Sidebar: Positioned at the bottom-right, this contains a vertical flexbox for the Like, Comment, and Share icons along with their respective metrics.   
 Bottom Info: Positioned at the bottom-left, this contains the overlapping floating avatar circles, the main profile image, the username, the "Follow" button, and the text caption.  
 
+git restore --staged .env
 
 root@dc:~/srinu/partical_photo# 
 
