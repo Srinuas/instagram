@@ -234,7 +234,7 @@
                 </optgroup>
             </select>
 
-            <!-- 13 Major Timezones Dropdown -->
+            <!-- Major Timezones Dropdown -->
             <select id="tz-selector" class="control-select" onchange="onTimezoneChange()">
                 <option value="Asia/Kolkata|IST">🇮🇳 India (IST, UTC+5:30)</option>
                 <option value="UTC|GMT">🌐 GMT / UTC (UTC+0:00)</option>
@@ -288,8 +288,184 @@
         let cachedLocations = [];
         let refreshTimerId = null;
 
-        // 1. Restore saved Timezone preference
+        // Restore saved Timezone preference
         const savedTz = localStorage.getItem('admin_selected_tz');
+        if (savedTz) {
+            const tzSelector = document.getElementById('tz-selector');
+            if ([...tzSelector.options].some(opt => opt.value === savedTz)) {
+                tzSelector.value = savedTz;
+            }
+        }
+
+        // Restore saved Auto-Refresh interval preference
+        const savedRefresh = localStorage.getItem('admin_refresh_interval');
+        if (savedRefresh) {
+            const refreshSelector = document.getElementById('refresh-selector');
+            if ([...refreshSelector.options].some(opt => opt.value === savedRefresh)) {
+                refreshSelector.value = savedRefresh;
+            }
+        }
+
+        function getSelectedTimezone() {
+            const val = document.getElementById('tz-selector').value;
+            const [ianaZone, shortLabel] = val.split('|');
+            return { ianaZone, shortLabel };
+        }
+
+        function formatTimestamp(gmtString, ianaZone, shortLabel) {
+            if (!gmtString) return 'N/A';
+            const date = new Date(gmtString);
+            if (isNaN(date.getTime())) return gmtString;
+
+            const formatted = date.toLocaleString('en-IN', {
+                timeZone: ianaZone,
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+
+            return `${formatted} <span class="tz-badge">${shortLabel}</span>`;
+        }
+
+        function updateSyncStatus(message) {
+            const statusEl = document.getElementById('sync-status');
+            if (message) {
+                statusEl.textContent = message;
+                return;
+            }
+            const { ianaZone, shortLabel } = getSelectedTimezone();
+            const nowStr = new Date().toLocaleTimeString('en-IN', {
+                timeZone: ianaZone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            statusEl.textContent = `Last synced: ${nowStr} (${shortLabel}) • Total unique locations: ${cachedLocations.length}`;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('log-table');
+            const { ianaZone, shortLabel } = getSelectedTimezone();
+
+            document.getElementById('timestamp-header').textContent = `Last Seen Timestamp (${shortLabel})`;
+
+            if (cachedLocations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No unique locations recorded yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = cachedLocations.map(row => `
+                <tr>
+                    <td>${row.id}</td>
+                    <td>${row.latitude}</td>
+                    <td>${row.longitude}</td>
+                    <td>${formatTimestamp(row.timestamp, ianaZone, shortLabel)}</td>
+                    <td>
+                        <button class="map-btn" onclick="openMapViewer(${row.latitude}, ${row.longitude})">
+                            📍 View on Maps
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function onTimezoneChange() {
+            const currentVal = document.getElementById('tz-selector').value;
+            localStorage.setItem('admin_selected_tz', currentVal);
+            renderTable();
+            updateSyncStatus();
+        }
+
+        function setupAutoRefresh() {
+            if (refreshTimerId) {
+                clearInterval(refreshTimerId);
+                refreshTimerId = null;
+            }
+            const seconds = parseInt(document.getElementById('refresh-selector').value, 10);
+            if (seconds > 0) {
+                refreshTimerId = setInterval(() => {
+                    fetchLocations(false);
+                }, seconds * 1000);
+            }
+        }
+
+        function onRefreshIntervalChange() {
+            const val = document.getElementById('refresh-selector').value;
+            localStorage.setItem('admin_refresh_interval', val);
+            setupAutoRefresh();
+            if (parseInt(val, 10) > 0) {
+                fetchLocations(false);
+            }
+        }
+
+        function fetchLocations(isManualClick = false) {
+            const refreshBtn = document.getElementById('refresh-now-btn');
+            if (isManualClick) {
+                refreshBtn.disabled = true;
+                refreshBtn.textContent = '⏳ Refreshing...';
+            }
+
+            fetch('/api/get_locations')
+                .then(async res => {
+                    if (res.status === 401) {
+                        window.location.href = '/';
+                        throw new Error("Unauthorized");
+                    }
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || "Database error");
+                    }
+                    return data;
+                })
+                .then(data => {
+                    cachedLocations = data;
+                    renderTable();
+                    updateSyncStatus();
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('log-table').innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${err.message}</td></tr>`;
+                    updateSyncStatus(`Sync failed: ${err.message}`);
+                })
+                .finally(() => {
+                    if (isManualClick) {
+                        refreshBtn.disabled = false;
+                        refreshBtn.textContent = '🔄 Refresh Now';
+                    }
+                });
+        }
+
+        function openMapViewer(lat, lng) {
+            const backdrop = document.getElementById('map-backdrop');
+            const iframe = document.getElementById('map-iframe');
+            const title = document.getElementById('map-title');
+            const externalLink = document.getElementById('gmaps-external');
+
+            title.textContent = `Coordinates: ${lat}, ${lng}`;
+            iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed`;
+            externalLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
+            backdrop.style.display = 'flex';
+        }
+
+        function closeMapViewer() {
+            const backdrop = document.getElementById('map-backdrop');
+            const iframe = document.getElementById('map-iframe');
+            backdrop.style.display = 'none';
+            iframe.src = '';
+        }
+
+        // Initial load + start auto-refresh timer if enabled
+        fetchLocations(false);
+        setupAutoRefresh();
+    </script>
+</body>
+</html>
+ localStorage.getItem('admin_selected_tz');
         if (savedTz) {
             const tzSelector = document.getElementById('tz-selector');
             if ([...tzSelector.options].some(opt => opt.value === savedTz)) {
