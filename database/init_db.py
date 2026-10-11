@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # Load .env from project root
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
-def create_and_fix_db():
+def create_db():
     conn = None
     cursor = None
     try:
@@ -18,7 +18,7 @@ def create_and_fix_db():
         )
         cursor = conn.cursor()
 
-        # 1. Create table if it doesn't exist yet (without AUTO_INCREMENT)
+        # 1. Create table if not exists (without AUTO_INCREMENT)
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS locations (
             id INT NOT NULL PRIMARY KEY,
@@ -29,17 +29,16 @@ def create_and_fix_db():
         ''')
         conn.commit()
 
-        # 2. Remove AUTO_INCREMENT from existing table (keeps PRIMARY KEY intact for Aiven)
+        # 2. Remove AUTO_INCREMENT from existing table while keeping Primary Key
         cursor.execute('ALTER TABLE locations MODIFY id INT NOT NULL')
         conn.commit()
-        print("Removed AUTO_INCREMENT from 'id' column.")
 
-        # 3. Re-number existing rows starting from 1 (in chronological order)
+        # 3. Re-arrange existing IDs sequentially starting from 1
         cursor.execute('SELECT COUNT(*), COALESCE(MAX(id), 0) FROM locations')
         total_rows, max_id = cursor.fetchone()
 
         if total_rows > 0:
-            # First shift IDs above current max_id to avoid Primary Key collisions during update
+            # Offset IDs first to avoid Primary Key collision during re-numbering
             cursor.execute('SET @temp_id = %s', (max_id,))
             cursor.execute('''
                 UPDATE locations 
@@ -47,7 +46,7 @@ def create_and_fix_db():
                 ORDER BY timestamp ASC, id ASC
             ''')
 
-            # Now assign clean 1, 2, 3... IDs
+            # Assign sequential IDs starting from 1
             cursor.execute('SET @new_id = 0')
             cursor.execute('''
                 UPDATE locations 
@@ -55,14 +54,12 @@ def create_and_fix_db():
                 ORDER BY id ASC
             ''')
             conn.commit()
-            print(f"Successfully re-numbered {total_rows} existing record(s) from 1 to {total_rows}.")
+            print(f"Aiven MySQL Database ready. Re-arranged {total_rows} record(s) starting from ID 1.")
         else:
-            print("Table is currently empty. Ready for new records starting at ID 1.")
-
-        print("Aiven MySQL Database setup complete.")
+            print("Aiven MySQL Database table ready (currently 0 records).")
 
     except Exception as e:
-        print("Database error:", e)
+        print("Database init error:", e)
     finally:
         if cursor:
             cursor.close()
@@ -70,4 +67,4 @@ def create_and_fix_db():
             conn.close()
 
 if __name__ == '__main__':
-    create_and_fix_db()
+    create_db()
