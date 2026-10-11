@@ -1,3 +1,4 @@
 .env
-database/*.db
+.git
 __pycache__/
+database/*.db

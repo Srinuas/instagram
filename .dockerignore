@@ -1,4 +1,5 @@
 .env
 .git
+note.txt
 __pycache__/
 database/*.db

@@ -13,12 +13,10 @@
             <span>&larr; Reels</span>
         </div>
 
-        <video id="reelVideo" autoplay loop playsinline muted>
+	<video id="reelVideo" autoplay loop playsinline muted onclick="this.muted = !this.muted">
             <source src="reel.mp4" type="video/mp4">
         </video>
         
-        <audio id="reelAudio" src="music.mp3" autoplay loop></audio>
-
         <div class="right-sidebar">
             <div class="icon">❤️<span>1M</span></div>
             <div class="icon">💬<span>3,028</span></div>

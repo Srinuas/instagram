@@ -10,13 +10,13 @@ FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, template_folder=FRONTEND_DIR)
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret')
-ADMIN_PIN = os.getenv('ADMIN_PIN', '6369')
+ADMIN_PIN = os.getenv('ADMIN_PIN')
 
 def get_db():
     # Aiven requires SSL, which is enabled by default in this connector
     return mysql.connector.connect(
         host=os.getenv('MYSQL_HOST'),
-        port=os.getenv('MYSQL_PORT'),
+        port=int(os.getenv('MYSQL_PORT', 10519)),
         user=os.getenv('MYSQL_USER'),
         password=os.getenv('MYSQL_PASSWORD'),
         database=os.getenv('MYSQL_DATABASE')

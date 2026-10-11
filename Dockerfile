@@ -3,7 +3,8 @@ WORKDIR /app
 COPY backend/requirements.txt /app/backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY . /app
-# Initialize the database during build
-RUN python database/init_db.py
+
+# The RUN python database/init_db.py line has been removed.
+
 EXPOSE 5000
 CMD ["python", "backend/app.py"]

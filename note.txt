@@ -27,3 +27,39 @@ Base Layer: The video tag takes up 100% of the mobile screen (object-fit: cover)
 Top Header: The "← Reels" text sits at the top left. This is also our hidden trigger—double-tapping this opens the admin PIN prompt.   
 Right Sidebar: Positioned at the bottom-right, this contains a vertical flexbox for the Like, Comment, and Share icons along with their respective metrics.   
 Bottom Info: Positioned at the bottom-left, this contains the overlapping floating avatar circles, the main profile image, the username, the "Follow" button, and the text caption.  
+
+
+root@dc:~/srinu/partical_photo# 
+
+# encrypt .env file:
+
+gpg -c .env
+
+# You'll be prompted: 
+# Enter passphrase: s
+# Repeat passphrase: s
+
+shred -u .env #removing more securely
+
+# To display contents without creating a file:
+gpg -d .env.gpg
+
+# Restore Back to .env
+gpg -d .env.gpg > .env
+
+# result
+cat .env
+
+# Re-encrypt After Changes
+vi .env
+gpg -c .env
+shred -u .env
+
+# Verify Encryption
+cat .env.gpg
+
+# for build and deploy
+
+export GP='s'
+docker rm -f app
+docker build --no-cache -t srinuas/instagram:1 . && gpg --batch --yes --passphrase "$GP" -d .env.gpg > .env && docker run -itd --name app -p 333:5000 --env-file .env srinuas/instagram:1

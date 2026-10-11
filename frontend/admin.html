@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Location Logs</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #333; color: white; }
+    </style>
+</head>
+<body>
+    <h2>Recorded User Locations</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Record ID</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="log-table"></tbody>
+    </table>
+
+    <script>
+        fetch('/api/get_locations')
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/';
+                    throw new Error("Unauthorized");
+                }
+                return res.json();
+            })
+            .then(data => {
+                const tbody = document.getElementById('log-table');
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.id}</td>
+                            <td>${row.latitude}</td>
+                            <td>${row.longitude}</td>
+                            <td>${row.timestamp}</td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(err => console.error(err));
+    </script>
+</body>
+</html>
