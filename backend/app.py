@@ -116,6 +116,29 @@ def insert_or_update_location(lat, lng):
         if conn and conn.is_connected():
             conn.close()
 
+def resequence_ids(conn, cursor):
+    """Always keeps database IDs numbered 1, 2, 3... in chronological order."""
+    cursor.execute("SELECT COUNT(*) AS cnt, COALESCE(MAX(id), 0) AS max_id FROM locations")
+    row = cursor.fetchone()
+    total_rows = row['cnt'] if isinstance(row, dict) else row[0]
+    max_id = row['max_id'] if isinstance(row, dict) else row[1]
+
+    if total_rows > 0:
+        cursor.execute("SET @temp_id = %s", (max_id,))
+        cursor.execute('''
+            UPDATE locations 
+            SET id = (@temp_id := @temp_id + 1) 
+            ORDER BY timestamp ASC, id ASC
+        ''')
+        cursor.execute("SET @new_id = 0")
+        cursor.execute('''
+            UPDATE locations 
+            SET id = (@new_id := @new_id + 1) 
+            ORDER BY id ASC
+        ''')
+        conn.commit()
+        
+
 @app.route('/')
 def index():
     return send_from_directory(FRONTEND_DIR, 'index.html')
