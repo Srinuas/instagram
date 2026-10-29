@@ -22,6 +22,9 @@ def create_db():
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS locations (
             id INT NOT NULL PRIMARY KEY,
+            ip_address VARCHAR(100),
+            city VARCHAR(100),
+            country VARCHAR(100),
             latitude FLOAT NOT NULL,
             longitude FLOAT NOT NULL,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP

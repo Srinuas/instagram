@@ -7,6 +7,9 @@ import json
 import os
 import hmac
 
+from math import radians, sin, cos, sqrt, atan2
+from datetime import datetime, timedelta
+
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,6 +18,7 @@ FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
 app = Flask(__name__, static_folder=None)
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret')
 ADMIN_PIN = str(os.getenv('ADMIN_PIN', '6369')).strip()
+ONLINE_USERS = {}
 
 def get_db():
     return mysql.connector.connect(
@@ -25,27 +29,22 @@ def get_db():
         database=os.getenv('MYSQL_DATABASE')
     )
 
-def resequence_ids(conn, cursor):
-    """Ensures IDs are always numbered 1, 2, 3... with no gaps after manual deletions."""
-    cursor.execute("SELECT COUNT(*) AS cnt, COALESCE(MAX(id), 0) AS max_id FROM locations")
-    row = cursor.fetchone()
-    total_rows = row['cnt'] if isinstance(row, dict) else row[0]
-    max_id = row['max_id'] if isinstance(row, dict) else row[1]
+def calculate_distance(lat1, lon1, lat2, lon2):
+    R = 6371000
 
-    if total_rows > 0 and total_rows != max_id:
-        cursor.execute("SET @temp_id = %s", (max_id,))
-        cursor.execute('''
-            UPDATE locations 
-            SET id = (@temp_id := @temp_id + 1) 
-            ORDER BY timestamp ASC, id ASC
-        ''')
-        cursor.execute("SET @new_id = 0")
-        cursor.execute('''
-            UPDATE locations 
-            SET id = (@new_id := @new_id + 1) 
-            ORDER BY id ASC
-        ''')
-        conn.commit()
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+
+    a = (
+        sin(dlat / 2) ** 2
+        + cos(radians(lat1))
+        * cos(radians(lat2))
+        * sin(dlon / 2) ** 2
+    )
+
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
 
 def init_table():
     conn = None
@@ -55,11 +54,14 @@ def init_table():
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS locations (
-                id INT NOT NULL PRIMARY KEY,
-                latitude FLOAT NOT NULL,
-                longitude FLOAT NOT NULL,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
+    id INT NOT NULL PRIMARY KEY,
+    ip_address VARCHAR(100),
+    city VARCHAR(100),
+    country VARCHAR(100),
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
         ''')
         conn.commit()
 
@@ -75,46 +77,75 @@ def init_table():
         if conn and conn.is_connected():
             conn.close()
 
-def insert_or_update_location(lat, lng):
-    """Avoids duplicate rows and inserts new locations with sequential IDs starting from 1."""
-    lat_val = round(float(lat), 4)
-    lng_val = round(float(lng), 4)
+def insert_or_update_location(lat, lng, ip_address, city="", country=""):
 
-    conn = None
-    cursor = None
+    lat_val = float(lat)
+    lng_val = float(lng)
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
     try:
-        conn = get_db()
-        cursor = conn.cursor(dictionary=True)
 
-        # Heal any ID gaps before inserting/updating
-        resequence_ids(conn, cursor)
+        ONLINE_USERS[ip_address] = datetime.utcnow()
 
-        # Check if this coordinate already exists (within 4 decimal places)
-        cursor.execute('''
-            SELECT id FROM locations 
-            WHERE ROUND(latitude, 4) = %s AND ROUND(longitude, 4) = %s
+        cursor.execute("""
+            SELECT latitude, longitude
+            FROM locations
+            WHERE ip_address=%s
+            ORDER BY timestamp DESC
             LIMIT 1
-        ''', (lat_val, lng_val))
-        existing = cursor.fetchone()
+        """, (ip_address,))
 
-        if existing:
-            cursor.execute('''
-                UPDATE locations SET timestamp = CURRENT_TIMESTAMP WHERE id = %s
-            ''', (existing['id'],))
-        else:
-            cursor.execute('SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM locations')
-            next_id = cursor.fetchone()['next_id']
+        last = cursor.fetchone()
 
-            cursor.execute('''
-                INSERT INTO locations (id, latitude, longitude) VALUES (%s, %s, %s)
-            ''', (next_id, lat_val, lng_val))
+        if last:
+
+            distance = calculate_distance(
+                lat_val,
+                lng_val,
+                last["latitude"],
+                last["longitude"]
+            )
+
+            if distance < 10:
+                return
+
+        cursor.execute(
+            "SELECT COALESCE(MAX(id),0)+1 AS next_id FROM locations"
+        )
+
+        next_id = cursor.fetchone()["next_id"]
+
+        cursor.execute("""
+            INSERT INTO locations
+            (
+                id,
+                ip_address,
+                city,
+                country,
+                latitude,
+                longitude
+            )
+            VALUES
+            (
+                %s,%s,%s,%s,%s,%s
+            )
+        """,
+        (
+            next_id,
+            ip_address,
+            city,
+            country,
+            lat_val,
+            lng_val
+        ))
 
         conn.commit()
+
     finally:
-        if cursor:
-            cursor.close()
-        if conn and conn.is_connected():
-            conn.close()
+        cursor.close()
+        conn.close()
 
 def resequence_ids(conn, cursor):
     """Always keeps database IDs numbered 1, 2, 3... in chronological order."""
@@ -151,15 +182,28 @@ def admin():
 
 @app.route('/api/location', methods=['POST'])
 def save_location():
+
     data = request.get_json(silent=True) or {}
-    lat, lng = data.get('lat'), data.get('lng')
-    if lat is not None and lng is not None:
-        try:
-            insert_or_update_location(lat, lng)
-            return jsonify({"status": "success"}), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-    return jsonify({"error": "Missing data"}), 400
+        lat = geo.get('lat')
+lng = geo.get('lon')
+
+city = geo.get('city', '')
+country = geo.get('country', '')
+
+if lat is not None and lng is not None:
+
+    insert_or_update_location(
+        lat,
+        lng,
+        client_ip,
+        city,
+        country
+    )
+
+    return jsonify({
+        "status":"success",
+        "source":"ip"
+    }), 200
 
 @app.route('/api/ip_location', methods=['POST'])
 def save_ip_location():
@@ -203,16 +247,19 @@ def get_locations():
         # Automatically re-arrange IDs from 1 if rows were deleted manually in DB
         resequence_ids(conn, cursor)
 
-        cursor.execute('''
-            SELECT 
-                MAX(id) AS id,
-                ROUND(latitude, 4) AS latitude,
-                ROUND(longitude, 4) AS longitude,
-                MAX(timestamp) AS timestamp
-            FROM locations
-            GROUP BY ROUND(latitude, 4), ROUND(longitude, 4)
-            ORDER BY timestamp DESC
-        ''')
+        cursor.execute("""
+    SELECT
+        id,
+        ip_address,
+        city,
+        country,
+        latitude,
+        longitude,
+        timestamp
+    FROM locations
+    ORDER BY timestamp DESC
+""")
+
         locations = cursor.fetchall()
         return jsonify(locations), 200
     except Exception as e:
@@ -222,6 +269,68 @@ def get_locations():
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
+
+@app.route('/api/live_users')
+def live_users():
+
+    if not session.get('is_admin'):
+        return jsonify({"error":"Unauthorized"}),401
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT *
+        FROM locations
+        ORDER BY timestamp DESC
+    """)
+
+    data = cursor.fetchall()
+
+    result = []
+
+    for row in data:
+
+        last_seen = ONLINE_USERS.get(
+            row["ip_address"]
+        )
+
+        is_live = False
+
+        if last_seen:
+            is_live = (
+                datetime.utcnow() - last_seen
+            ) < timedelta(seconds=15)
+
+        row["status"] = "LIVE" if is_live else "OFFLINE"
+
+        result.append(row)
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(result)
+
+@app.route('/api/delete_location/<int:id>', methods=['DELETE'])
+def delete_location(id):
+
+    if not session.get('is_admin'):
+        return jsonify({"error":"Unauthorized"}),401
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM locations WHERE id=%s",
+        (id,)
+    )
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"success":True})
 
 @app.route('/<path:filename>')
 def serve_static(filename):

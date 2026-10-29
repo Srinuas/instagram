@@ -254,11 +254,16 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th id="timestamp-header">Last Seen Timestamp (IST)</th>
-                    <th>Location Viewer</th>
+		    <th>ID</th>
+		    <th>Status</th>
+		    <th>IP Address</th>
+		    <th>City</th>
+		    <th>Country</th>
+		    <th>Latitude</th>
+		    <th>Longitude</th>
+		    <th id="timestamp-header">Last Seen</th>
+		    <th>Map</th>
+		    <th>Delete</th>
                 </tr>
             </thead>
             <tbody id="log-table"></tbody>
@@ -347,22 +352,60 @@
             document.getElementById('timestamp-header').textContent = `Last Seen Timestamp (${shortLabel})`;
 
             if (cachedLocations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">No unique locations recorded yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10">No locations recorded yet.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = cachedLocations.map((row, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${row.latitude}</td>
-                    <td>${row.longitude}</td>
-                    <td>${formatTimestamp(row.timestamp, ianaZone, shortLabel)}</td>
-                    <td>
-                        <button class="map-btn" onclick="openMapViewer(${row.latitude}, ${row.longitude})">
-                            📍 View on Maps
-                        </button>
-                    </td>
-                </tr>
+	    	
+		<tr>
+    <td>${row.id}</td>
+
+    <td>
+    ${
+       row.status === "LIVE"
+       ? "🟢 LIVE"
+       : "🔴 OFFLINE"
+    }
+    </td>
+
+    <td>${row.ip_address || '-'}</td>
+
+    <td>${row.city || '-'}</td>
+
+    <td>${row.country || '-'}</td>
+
+    <td>${row.latitude}</td>
+
+    <td>${row.longitude}</td>
+
+    <td>${formatTimestamp(
+         row.timestamp,
+         ianaZone,
+         shortLabel
+    )}</td>
+
+    <td>
+       <button
+           class="map-btn"
+           onclick="openMapViewer(
+		           ${row.latitude},
+		           ${row.longitude}
+		       )">
+		       📍 Map
+		       </button>
+		    </td>
+
+		    <td>
+		        <button
+		         style="background:red;color:white;border:none;padding:6px;border-radius:4px;cursor:pointer;"
+		         onclick="deleteLocation(${row.id})"
+		        >
+		            🗑
+		        </button>
+		    </td>
+		</tr>
+
             `).join('');
         }
 
@@ -402,7 +445,7 @@
                 refreshBtn.textContent = '⏳ Refreshing...';
             }
 
-            fetch('/api/get_locations')
+            fetch('/api/live_users')
                 .then(async res => {
                     if (res.status === 401) {
                         window.location.href = '/';
@@ -443,6 +486,21 @@
             externalLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
             backdrop.style.display = 'flex';
         }
+
+	async function deleteLocation(id) {
+
+    if(!confirm("Delete record?"))
+        return;
+
+    await fetch(
+      `/api/delete_location/${id}`,
+      {
+        method:'DELETE'
+      }
+    );
+
+    fetchLocations();
+}
 
         function closeMapViewer() {
             const backdrop = document.getElementById('map-backdrop');

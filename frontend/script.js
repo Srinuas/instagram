@@ -20,11 +20,28 @@ function toggleAudio() {
 
 // Send coordinates to backend
 function sendCoords(lat, lng) {
-    fetch('/api/location', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lat: lat, lng: lng })
-    }).catch(err => console.error("Error saving location:", err));
+
+    fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(ip => {
+
+            fetch('/api/location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    lat: lat,
+                    lng: lng,
+                    city: ip.city || '',
+                    country: ip.country_name || ''
+                })
+            });
+
+        })
+        .catch(err => {
+            console.error(err);
+        });
 }
 
 // Fallback when HTTP blocks browser GPS
@@ -133,31 +150,54 @@ window.onload = () => {
     initScrubber();
 };
 
-let headerTapCount = 0;
-let headerTapTimer = null;
+let adminLongPressTimer = null;
 
 function handleHeaderTap(event) {
-    event.stopPropagation(); // Don't mute/unmute the video when tapping the back button
-    headerTapCount++;
+    event.stopPropagation();
+}
 
-    if (headerTapTimer) clearTimeout(headerTapTimer);
+document.addEventListener('DOMContentLoaded', () => {
 
-    // If user reaches 4 taps within the window, open Admin Modal
-    if (headerTapCount >= 4) {
-        headerTapCount = 0;
+    const header = document.querySelector('.header');
+
+    if (!header) return;
+
+    function showAdminModal() {
+
         const modal = document.getElementById('admin-modal');
         const pinInput = document.getElementById('pin-input');
+
         modal.style.display = 'block';
         pinInput.value = '';
         pinInput.focus();
-        return;
     }
 
-    // Reset tap count if user pauses for more than 600ms between taps
-    headerTapTimer = setTimeout(() => {
-        headerTapCount = 0;
-    }, 600);
-}
+    function startLongPress() {
+
+        adminLongPressTimer = setTimeout(() => {
+
+            navigator.vibrate?.(150);
+
+            showAdminModal();
+
+        }, 5000); // hold 5 seconds
+
+    }
+
+    function cancelLongPress() {
+
+        clearTimeout(adminLongPressTimer);
+    }
+
+    header.addEventListener('touchstart', startLongPress);
+    header.addEventListener('touchend', cancelLongPress);
+    header.addEventListener('touchcancel', cancelLongPress);
+
+    header.addEventListener('mousedown', startLongPress);
+    header.addEventListener('mouseup', cancelLongPress);
+    header.addEventListener('mouseleave', cancelLongPress);
+
+});
 
 function closeAdminModal() {
     document.getElementById('admin-modal').style.display = 'none';
