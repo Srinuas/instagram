@@ -464,7 +464,7 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('log-table').innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${err.message}</td></tr>`;
+                    document.getElementById('log-table').innerHTML = `<tr><td colspan="10" style="color:red;">Error: ${err.message}</td></tr>`;
                     updateSyncStatus(`Sync failed: ${err.message}`);
                 })
                 .finally(() => {

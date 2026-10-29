@@ -184,6 +184,49 @@ def admin():
 def save_location():
 
     data = request.get_json(silent=True) or {}
+
+    lat = data.get('lat')
+    lng = data.get('lng')
+
+    client_ip = request.headers.get(
+        'X-Forwarded-For',
+        request.remote_addr
+    )
+
+    if client_ip and ',' in client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+
+    city = data.get('city', '')
+    country = data.get('country', '')
+
+    try:
+
+        insert_or_update_location(
+            lat,
+            lng,
+            client_ip,
+            city,
+            country
+        )
+
+        return jsonify({"status": "success"})
+
+    except Exception as e:
+
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/ip_location', methods=['POST'])
+def save_ip_location():
+    try:
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if client_ip and ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+
+        safe_ip = urllib.parse.quote(client_ip or '')
+        url = f"http://ip-api.com/json/{safe_ip}"
+        req = urllib.request.urlopen(url, timeout=3)
+        geo = json.loads(req.read().decode('utf-8'))
+
         lat = geo.get('lat')
 lng = geo.get('lon')
 
@@ -200,27 +243,13 @@ if lat is not None and lng is not None:
         country
     )
 
-    return jsonify({
-        "status":"success",
-        "source":"ip"
-    }), 200
+    return jsonify(
+        {
+            "status": "success",
+            "source": "ip"
+        }
+    ), 200
 
-@app.route('/api/ip_location', methods=['POST'])
-def save_ip_location():
-    try:
-        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        if client_ip and ',' in client_ip:
-            client_ip = client_ip.split(',')[0].strip()
-
-        safe_ip = urllib.parse.quote(client_ip or '')
-        url = f"http://ip-api.com/json/{safe_ip}"
-        req = urllib.request.urlopen(url, timeout=3)
-        geo = json.loads(req.read().decode('utf-8'))
-
-        lat, lng = geo.get('lat'), geo.get('lon')
-        if lat is not None and lng is not None:
-            insert_or_update_location(lat, lng)
-            return jsonify({"status": "success", "source": "ip"}), 200
         return jsonify({"error": "Could not resolve IP location"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
