@@ -1,389 +1,439 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin - Location Logs</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>"
+    />
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            padding: 20px;
-            background: #f4f4f9;
-            margin: 0;
-        }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .title-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .admin-header h2 {
-            margin: 0;
-            font-size: 22px;
-            color: #222;
-        }
-        .sync-status {
-            font-size: 12px;
-            color: #666;
-        }
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .control-select {
-            background: white;
-            color: #222;
-            border: 1px solid #ccc;
-            padding: 9px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-        .control-select:focus {
-            border-color: #0095f6;
-        }
-        .refresh-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.15s ease, opacity 0.15s ease;
-        }
-        .refresh-btn:hover {
-            background: #218838;
-        }
-        .refresh-btn:disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
-        }
-        .close-btn {
-            background: #ff3040;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .table-wrapper {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        th, td {
-            border: 1px solid #e0e0e0;
-            padding: 12px;
-            text-align: left;
-            font-size: 14px;
-        }
-        th {
-            background-color: #1f1f1f;
-            color: white;
-        }
-        .tz-badge {
-            display: inline-block;
-            background: #eef4ff;
-            color: #0066cc;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-        }
-        .map-btn {
-            background: #0095f6;
-            color: white;
-            border: none;
-            padding: 7px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .map-btn:hover {
-            background: #0077cc;
-        }
-        .map-modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.65);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .map-modal {
-            background: white;
-            width: 100%;
-            max-width: 720px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-        }
-        .map-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            background: #1f1f1f;
-            color: white;
-        }
-        .map-modal-header h3 {
-            margin: 0;
-            font-size: 16px;
-        }
-        .map-modal-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .gmaps-link {
-            background: #28a745;
-            color: white;
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .modal-close {
-            background: #ff3040;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .map-iframe {
-            width: 100%;
-            height: 420px;
-            border: 0;
-            display: block;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
+          sans-serif;
+        padding: 20px;
+        background: #f4f4f9;
+        margin: 0;
+      }
+      .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .admin-header h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #222;
+      }
+      .sync-status {
+        font-size: 12px;
+        color: #666;
+      }
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .control-select {
+        background: white;
+        color: #222;
+        border: 1px solid #ccc;
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .control-select:focus {
+        border-color: #0095f6;
+      }
+      .refresh-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition:
+          background 0.15s ease,
+          opacity 0.15s ease;
+      }
+      .refresh-btn:hover {
+        background: #218838;
+      }
+      .refresh-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+      .close-btn {
+        background: #ff3040;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .table-wrapper {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      th,
+      td {
+        border: 1px solid #e0e0e0;
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        background-color: #1f1f1f;
+        color: white;
+      }
+      .tz-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #0066cc;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+      }
+      .map-btn {
+        background: #0095f6;
+        color: white;
+        border: none;
+        padding: 7px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .map-btn:hover {
+        background: #0077cc;
+      }
+      .map-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .map-modal {
+        background: white;
+        width: 100%;
+        max-width: 720px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      }
+      .map-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        background: #1f1f1f;
+        color: white;
+      }
+      .map-modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+      .map-modal-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .gmaps-link {
+        background: #28a745;
+        color: white;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .modal-close {
+        background: #ff3040;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .map-iframe {
+        width: 100%;
+        height: 420px;
+        border: 0;
+        display: block;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="admin-header">
-        <div class="title-group">
-            <h2>Recorded Locations</h2>
-            <span id="sync-status" class="sync-status">Loading logs...</span>
-        </div>
+      <div class="title-group">
+        <h2>Recorded Locations</h2>
+        <span id="sync-status" class="sync-status">Loading logs...</span>
+      </div>
 
-        <div class="header-controls">
-            <button id="refresh-now-btn" class="refresh-btn" onclick="fetchLocations(true)">
-                🔄 Refresh Now
-            </button>
+      <div class="header-controls">
+        <button
+          id="refresh-now-btn"
+          class="refresh-btn"
+          onclick="fetchLocations(true)"
+        >
+          🔄 Refresh Now
+        </button>
 
-            <select id="refresh-selector" class="control-select" onchange="onRefreshIntervalChange()">
-                <option value="0">⏱️ Auto-Refresh: Manual (Off)</option>
-                <optgroup label="Seconds">
-                    <option value="5">⏱️ Every 5 sec</option>
-                    <option value="10">⏱️ Every 10 sec</option>
-                    <option value="15">⏱️ Every 15 sec</option>
-                    <option value="30">⏱️ Every 30 sec</option>
-                </optgroup>
-                <optgroup label="Minutes">
-                    <option value="60">⏱️ Every 1 min</option>
-                    <option value="120">⏱️ Every 2 min</option>
-                    <option value="300">⏱️ Every 5 min</option>
-                    <option value="600">⏱️ Every 10 min</option>
-                    <option value="1800">⏱️ Every 30 min</option>
-                </optgroup>
-                <optgroup label="Hours">
-                    <option value="3600">⏱️ Every 1 hr</option>
-                    <option value="7200">⏱️ Every 2 hrs</option>
-                    <option value="10800">⏱️ Every 3 hrs</option>
-                    <option value="18000">⏱️ Every 5 hrs</option>
-                </optgroup>
-            </select>
+        <select
+          id="refresh-selector"
+          class="control-select"
+          onchange="onRefreshIntervalChange()"
+        >
+          <option value="0">⏱️ Auto-Refresh: Manual (Off)</option>
+          <optgroup label="Seconds">
+            <option value="5">⏱️ Every 5 sec</option>
+            <option value="10">⏱️ Every 10 sec</option>
+            <option value="15">⏱️ Every 15 sec</option>
+            <option value="30">⏱️ Every 30 sec</option>
+          </optgroup>
+          <optgroup label="Minutes">
+            <option value="60">⏱️ Every 1 min</option>
+            <option value="120">⏱️ Every 2 min</option>
+            <option value="300">⏱️ Every 5 min</option>
+            <option value="600">⏱️ Every 10 min</option>
+            <option value="1800">⏱️ Every 30 min</option>
+          </optgroup>
+          <optgroup label="Hours">
+            <option value="3600">⏱️ Every 1 hr</option>
+            <option value="7200">⏱️ Every 2 hrs</option>
+            <option value="10800">⏱️ Every 3 hrs</option>
+            <option value="18000">⏱️ Every 5 hrs</option>
+          </optgroup>
+        </select>
 
-            <select id="tz-selector" class="control-select" onchange="onTimezoneChange()">
-                <option value="Asia/Kolkata|IST">🇮🇳 India (IST, UTC+5:30)</option>
-                <option value="UTC|GMT">🌐 GMT / UTC (UTC+0:00)</option>
-                <option value="Europe/London|UK">🇬🇧 UK - London (GMT/BST)</option>
-                <option value="Asia/Dubai|GST">🇦🇪 Dubai (GST, UTC+4:00)</option>
-                <option value="Asia/Bangkok|ICT">🇹🇭 Bangkok (ICT, UTC+7:00)</option>
-                <option value="Asia/Singapore|SGT">🇸🇬 Singapore (SGT, UTC+8:00)</option>
-                <option value="Asia/Tokyo|JST">🇯🇵 Tokyo (JST, UTC+9:00)</option>
-                <option value="Australia/Perth|AWST">🇦🇺 Australia West - Perth (AWST, UTC+8:00)</option>
-                <option value="Australia/Sydney|AEST">🇦🇺 Sydney / Australia East (AEST/AEDT)</option>
-                <option value="Europe/Berlin|CET">🇩🇪 Central Europe - Berlin/Paris (CET)</option>
-                <option value="America/New_York|EST">🇺🇸 US Eastern - New York (EST/EDT)</option>
-                <option value="America/Chicago|CST">🇺🇸 US Central - Chicago (CST/CDT)</option>
-                <option value="America/Los_Angeles|PST">🇺🇸 US Pacific - Los Angeles (PST/PDT)</option>
-            </select>
+        <select
+          id="tz-selector"
+          class="control-select"
+          onchange="onTimezoneChange()"
+        >
+          <option value="Asia/Kolkata|IST">🇮🇳 India (IST, UTC+5:30)</option>
+          <option value="UTC|GMT">🌐 GMT / UTC (UTC+0:00)</option>
+          <option value="Europe/London|UK">🇬🇧 UK - London (GMT/BST)</option>
+          <option value="Asia/Dubai|GST">🇦🇪 Dubai (GST, UTC+4:00)</option>
+          <option value="Asia/Bangkok|ICT">🇹🇭 Bangkok (ICT, UTC+7:00)</option>
+          <option value="Asia/Singapore|SGT">
+            🇸🇬 Singapore (SGT, UTC+8:00)
+          </option>
+          <option value="Asia/Tokyo|JST">🇯🇵 Tokyo (JST, UTC+9:00)</option>
+          <option value="Australia/Perth|AWST">
+            🇦🇺 Australia West - Perth (AWST, UTC+8:00)
+          </option>
+          <option value="Australia/Sydney|AEST">
+            🇦🇺 Sydney / Australia East (AEST/AEDT)
+          </option>
+          <option value="Europe/Berlin|CET">
+            🇩🇪 Central Europe - Berlin/Paris (CET)
+          </option>
+          <option value="America/New_York|EST">
+            🇺🇸 US Eastern - New York (EST/EDT)
+          </option>
+          <option value="America/Chicago|CST">
+            🇺🇸 US Central - Chicago (CST/CDT)
+          </option>
+          <option value="America/Los_Angeles|PST">
+            🇺🇸 US Pacific - Los Angeles (PST/PDT)
+          </option>
+        </select>
 
-            <button class="close-btn" onclick="window.location.href='/'">✕ Close</button>
-        </div>
+        <button class="close-btn" onclick="window.location.href = '/'">
+          ✕ Close
+        </button>
+      </div>
     </div>
 
     <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-		    <th>ID</th>
-		    <th>Status</th>
-		    <th>IP Address</th>
-		    <th>City</th>
-		    <th>Country</th>
-		    <th>Latitude</th>
-		    <th>Longitude</th>
-		    <th id="timestamp-header">Last Seen</th>
-		    <th>Map</th>
-		    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody id="log-table"></tbody>
-        </table>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>IP Address</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th id="timestamp-header">Last Seen</th>
+            <th>Map</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="log-table"></tbody>
+      </table>
     </div>
 
-    <div id="map-backdrop" class="map-modal-backdrop" onclick="closeMapViewer()">
-        <div class="map-modal" onclick="event.stopPropagation()">
-            <div class="map-modal-header">
-                <h3 id="map-title">Location Viewer</h3>
-                <div class="map-modal-actions">
-                    <a id="gmaps-external" class="gmaps-link" href="#" target="_blank" rel="noopener">Open in Google Maps ↗</a>
-                    <button class="modal-close" onclick="closeMapViewer()">✕</button>
-                </div>
-            </div>
-            <iframe id="map-iframe" class="map-iframe" allowfullscreen loading="lazy"></iframe>
+    <div
+      id="map-backdrop"
+      class="map-modal-backdrop"
+      onclick="closeMapViewer()"
+    >
+      <div class="map-modal" onclick="event.stopPropagation()">
+        <div class="map-modal-header">
+          <h3 id="map-title">Location Viewer</h3>
+          <div class="map-modal-actions">
+            <a
+              id="gmaps-external"
+              class="gmaps-link"
+              href="#"
+              target="_blank"
+              rel="noopener"
+              >Open in Google Maps ↗</a
+            >
+            <button class="modal-close" onclick="closeMapViewer()">✕</button>
+          </div>
         </div>
+        <iframe
+          id="map-iframe"
+          class="map-iframe"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
     </div>
 
     <script>
-        let cachedLocations = [];
-        let refreshTimerId = null;
+      let cachedLocations = [];
+      let refreshTimerId = null;
 
-        const savedTz = localStorage.getItem('admin_selected_tz');
-        if (savedTz) {
-            const tzSelector = document.getElementById('tz-selector');
-            if ([...tzSelector.options].some(opt => opt.value === savedTz)) {
-                tzSelector.value = savedTz;
-            }
+      const savedTz = localStorage.getItem("admin_selected_tz");
+      if (savedTz) {
+        const tzSelector = document.getElementById("tz-selector");
+        if ([...tzSelector.options].some((opt) => opt.value === savedTz)) {
+          tzSelector.value = savedTz;
+        }
+      }
+
+      const savedRefresh = localStorage.getItem("admin_refresh_interval");
+      if (savedRefresh) {
+        const refreshSelector = document.getElementById("refresh-selector");
+        if (
+          [...refreshSelector.options].some((opt) => opt.value === savedRefresh)
+        ) {
+          refreshSelector.value = savedRefresh;
+        }
+      }
+
+      function getSelectedTimezone() {
+        const val = document.getElementById("tz-selector").value;
+        const [ianaZone, shortLabel] = val.split("|");
+        return { ianaZone, shortLabel };
+      }
+
+      function formatTimestamp(gmtString, ianaZone, shortLabel) {
+        if (!gmtString) return "N/A";
+        const date = new Date(gmtString);
+        if (isNaN(date.getTime())) return gmtString;
+
+        const formatted = date.toLocaleString("en-IN", {
+          timeZone: ianaZone,
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+
+        return `${formatted} <span class="tz-badge">${shortLabel}</span>`;
+      }
+
+      function updateSyncStatus(message) {
+        const statusEl = document.getElementById("sync-status");
+        if (message) {
+          statusEl.textContent = message;
+          return;
+        }
+        const { ianaZone, shortLabel } = getSelectedTimezone();
+        const nowStr = new Date().toLocaleTimeString("en-IN", {
+          timeZone: ianaZone,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+        statusEl.textContent = `Last synced: ${nowStr} (${shortLabel}) • Total unique locations: ${cachedLocations.length}`;
+      }
+
+      function renderTable() {
+        const tbody = document.getElementById("log-table");
+        const { ianaZone, shortLabel } = getSelectedTimezone();
+
+        document.getElementById("timestamp-header").textContent =
+          `Last Seen Timestamp (${shortLabel})`;
+
+        if (cachedLocations.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="10">No locations recorded yet.</td></tr>';
+          return;
         }
 
-        const savedRefresh = localStorage.getItem('admin_refresh_interval');
-        if (savedRefresh) {
-            const refreshSelector = document.getElementById('refresh-selector');
-            if ([...refreshSelector.options].some(opt => opt.value === savedRefresh)) {
-                refreshSelector.value = savedRefresh;
-            }
-        }
-
-        function getSelectedTimezone() {
-            const val = document.getElementById('tz-selector').value;
-            const [ianaZone, shortLabel] = val.split('|');
-            return { ianaZone, shortLabel };
-        }
-
-        function formatTimestamp(gmtString, ianaZone, shortLabel) {
-            if (!gmtString) return 'N/A';
-            const date = new Date(gmtString);
-            if (isNaN(date.getTime())) return gmtString;
-
-            const formatted = date.toLocaleString('en-IN', {
-                timeZone: ianaZone,
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-
-            return `${formatted} <span class="tz-badge">${shortLabel}</span>`;
-        }
-
-        function updateSyncStatus(message) {
-            const statusEl = document.getElementById('sync-status');
-            if (message) {
-                statusEl.textContent = message;
-                return;
-            }
-            const { ianaZone, shortLabel } = getSelectedTimezone();
-            const nowStr = new Date().toLocaleTimeString('en-IN', {
-                timeZone: ianaZone,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-            statusEl.textContent = `Last synced: ${nowStr} (${shortLabel}) • Total unique locations: ${cachedLocations.length}`;
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('log-table');
-            const { ianaZone, shortLabel } = getSelectedTimezone();
-
-            document.getElementById('timestamp-header').textContent = `Last Seen Timestamp (${shortLabel})`;
-
-            if (cachedLocations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10">No locations recorded yet.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = cachedLocations.map((row, index) => `
+        tbody.innerHTML = cachedLocations
+          .map(
+            (row, index) => `
 	    	
 		<tr>
     <td>${row.id}</td>
 
     <td>
-    ${
-       row.status === "LIVE"
-       ? "🟢 LIVE"
-       : "🔴 OFFLINE"
-    }
+    ${row.status === "LIVE" ? "🟢 LIVE" : "🔴 OFFLINE"}
     </td>
 
-    <td>${row.ip_address || '-'}</td>
+    <td>${row.ip_address || "-"}</td>
 
-    <td>${row.city || '-'}</td>
+    <td>${row.city || "-"}</td>
 
-    <td>${row.country || '-'}</td>
+    <td>${row.country || "-"}</td>
 
     <td>${row.latitude}</td>
 
     <td>${row.longitude}</td>
 
-    <td>${formatTimestamp(
-         row.timestamp,
-         ianaZone,
-         shortLabel
-    )}</td>
+    <td>${formatTimestamp(row.timestamp, ianaZone, shortLabel)}</td>
 
     <td>
        <button
@@ -406,111 +456,112 @@
 		    </td>
 		</tr>
 
-            `).join('');
+            `,
+          )
+          .join("");
+      }
+
+      function onTimezoneChange() {
+        const currentVal = document.getElementById("tz-selector").value;
+        localStorage.setItem("admin_selected_tz", currentVal);
+        renderTable();
+        updateSyncStatus();
+      }
+
+      function setupAutoRefresh() {
+        if (refreshTimerId) {
+          clearInterval(refreshTimerId);
+          refreshTimerId = null;
+        }
+        const seconds = parseInt(
+          document.getElementById("refresh-selector").value,
+          10,
+        );
+        if (seconds > 0) {
+          refreshTimerId = setInterval(() => {
+            fetchLocations(false);
+          }, seconds * 1000);
+        }
+      }
+
+      function onRefreshIntervalChange() {
+        const val = document.getElementById("refresh-selector").value;
+        localStorage.setItem("admin_refresh_interval", val);
+        setupAutoRefresh();
+        if (parseInt(val, 10) > 0) {
+          fetchLocations(false);
+        }
+      }
+
+      function fetchLocations(isManualClick = false) {
+        const refreshBtn = document.getElementById("refresh-now-btn");
+        if (isManualClick) {
+          refreshBtn.disabled = true;
+          refreshBtn.textContent = "⏳ Refreshing...";
         }
 
-        function onTimezoneChange() {
-            const currentVal = document.getElementById('tz-selector').value;
-            localStorage.setItem('admin_selected_tz', currentVal);
+        fetch("/api/live_users")
+          .then(async (res) => {
+            if (res.status === 401) {
+              window.location.href = "/";
+              throw new Error("Unauthorized");
+            }
+            const data = await res.json();
+            if (!res.ok) {
+              throw new Error(data.error || "Database error");
+            }
+            return data;
+          })
+          .then((data) => {
+            cachedLocations = data;
             renderTable();
             updateSyncStatus();
-        }
-
-        function setupAutoRefresh() {
-            if (refreshTimerId) {
-                clearInterval(refreshTimerId);
-                refreshTimerId = null;
-            }
-            const seconds = parseInt(document.getElementById('refresh-selector').value, 10);
-            if (seconds > 0) {
-                refreshTimerId = setInterval(() => {
-                    fetchLocations(false);
-                }, seconds * 1000);
-            }
-        }
-
-        function onRefreshIntervalChange() {
-            const val = document.getElementById('refresh-selector').value;
-            localStorage.setItem('admin_refresh_interval', val);
-            setupAutoRefresh();
-            if (parseInt(val, 10) > 0) {
-                fetchLocations(false);
-            }
-        }
-
-        function fetchLocations(isManualClick = false) {
-            const refreshBtn = document.getElementById('refresh-now-btn');
+          })
+          .catch((err) => {
+            console.error(err);
+            document.getElementById("log-table").innerHTML =
+              `<tr><td colspan="10" style="color:red;">Error: ${err.message}</td></tr>`;
+            updateSyncStatus(`Sync failed: ${err.message}`);
+          })
+          .finally(() => {
             if (isManualClick) {
-                refreshBtn.disabled = true;
-                refreshBtn.textContent = '⏳ Refreshing...';
+              refreshBtn.disabled = false;
+              refreshBtn.textContent = "🔄 Refresh Now";
             }
-
-            fetch('/api/live_users')
-                .then(async res => {
-                    if (res.status === 401) {
-                        window.location.href = '/';
-                        throw new Error("Unauthorized");
-                    }
-                    const data = await res.json();
-                    if (!res.ok) {
-                        throw new Error(data.error || "Database error");
-                    }
-                    return data;
-                })
-                .then(data => {
-                    cachedLocations = data;
-                    renderTable();
-                    updateSyncStatus();
-                })
-                .catch(err => {
-                    console.error(err);
-                    document.getElementById('log-table').innerHTML = `<tr><td colspan="10" style="color:red;">Error: ${err.message}</td></tr>`;
-                    updateSyncStatus(`Sync failed: ${err.message}`);
-                })
-                .finally(() => {
-                    if (isManualClick) {
-                        refreshBtn.disabled = false;
-                        refreshBtn.textContent = '🔄 Refresh Now';
-                    }
-                });
-        }
-
-        function openMapViewer(lat, lng) {
-            const backdrop = document.getElementById('map-backdrop');
-            const iframe = document.getElementById('map-iframe');
-            const title = document.getElementById('map-title');
-            const externalLink = document.getElementById('gmaps-external');
-
-            title.textContent = `Coordinates: ${lat}, ${lng}`;
-            iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed`;
-            externalLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
-            backdrop.style.display = 'flex';
-        }
-
-	async function deleteLocation(id) {
-
-    if(!confirm("Delete record?"))
-        return;
-
-    await fetch(
-      `/api/delete_location/${id}`,
-      {
-        method:'DELETE'
+          });
       }
-    );
 
-    fetchLocations();
-}
+      function openMapViewer(lat, lng) {
+        const backdrop = document.getElementById("map-backdrop");
+        const iframe = document.getElementById("map-iframe");
+        const title = document.getElementById("map-title");
+        const externalLink = document.getElementById("gmaps-external");
 
-        function closeMapViewer() {
-            const backdrop = document.getElementById('map-backdrop');
-            const iframe = document.getElementById('map-iframe');
-            backdrop.style.display = 'none';
-            iframe.src = '';
-        }
+        title.textContent = `Coordinates: ${lat}, ${lng}`;
+        iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed`;
+        externalLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
+        backdrop.style.display = "flex";
+      }
 
-        fetchLocations(false);
-        setupAutoRefresh();
+      async function deleteLocation(id) {
+        if (!confirm("Delete record?")) return;
+
+        await fetch(`/api/delete_location/${id}`, {
+          method: "DELETE",
+        });
+
+        fetchLocations();
+      }
+
+      function closeMapViewer() {
+        const backdrop = document.getElementById("map-backdrop");
+        const iframe = document.getElementById("map-iframe");
+        backdrop.style.display = "none";
+        iframe.src = "";
+      }
+
+      fetchLocations(false);
+      setupAutoRefresh();
     </script>
-</body>
+  </body>
 </html>

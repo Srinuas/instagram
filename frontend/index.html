@@ -1,167 +1,281 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Reels</title>
     <!-- ?v=3 forces mobile browser to load the latest CSS -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
-    <link rel="stylesheet" href="style.css?v=3">
-</head>
-<body>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>"
+    />
+    <link rel="stylesheet" href="style.css?v=3" />
+  </head>
+  <body>
     <div class="mobile-container">
-        <div class="video-section" onclick="toggleAudio()">
-            <!-- Top Header (Tap 4 times rapidly on the Back Arrow / Reels to open Admin Modal) -->
-            <div class="header" onclick="handleHeaderTap(event)">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
+      <div class="video-section" onclick="toggleAudio()">
+        <!-- Top Header (Tap 4 times rapidly on the Back Arrow / Reels to open Admin Modal) -->
+        <div class="header" onclick="handleHeaderTap(event)">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Reels</span>
+        </div>
+
+        <video id="reelVideo" autoplay loop playsinline muted>
+          <source src="reel.mp4" type="video/mp4" />
+        </video>
+
+        <!-- Center Mute/Unmute Indicator -->
+        <div id="mute-indicator" class="mute-indicator">🔇</div>
+
+        <!-- Right Sidebar Icons (Exact Instagram Proportions) -->
+        <div class="right-sidebar" onclick="event.stopPropagation()">
+          <!-- Like -->
+          <div class="action-btn">
+            <svg
+              aria-label="Like"
+              fill="#ff3040"
+              height="30"
+              viewBox="0 0 48 48"
+              width="30"
+            >
+              <path
+                d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
+              ></path>
+            </svg>
+            <span class="count">1M</span>
+          </div>
+
+          <!-- Comment -->
+          <div class="action-btn">
+            <svg
+              aria-label="Comment"
+              fill="none"
+              height="30"
+              viewBox="0 0 24 24"
+              width="30"
+            >
+              <path
+                d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
+                stroke="white"
+                stroke-linejoin="round"
+                stroke-width="2.2"
+              ></path>
+            </svg>
+            <span class="count">3,628</span>
+          </div>
+
+          <!-- Repost -->
+          <div class="action-btn">
+            <svg
+              aria-label="Repost"
+              fill="white"
+              height="30"
+              viewBox="0 0 24 24"
+              width="30"
+            >
+              <path
+                d="M19.998 9.497a1 1 0 0 0-1 1v4.228a3.274 3.274 0 0 1-3.27 3.27h-5.313l1.791-1.787a1 1 0 0 0-1.412-1.416L7.29 18.287a1.004 1.004 0 0 0-.294.707v.001c0 .023.012.042.013.065a.923.923 0 0 0 .281.643l3.502 3.504a1 1 0 0 0 1.414-1.414l-1.797-1.798h5.318a5.276 5.276 0 0 0 5.27-5.27v-4.228a1 1 0 0 0-1-1Zm-6.41-3.496-1.795 1.795a1 1 0 1 0 1.414 1.414l3.5-3.5a1.003 1.003 0 0 0 0-1.417l-3.5-3.5a1 1 0 0 0-1.414 1.414l1.794 1.794H8.27A5.277 5.277 0 0 0 3 9.271V13.5a1 1 0 0 0 2 0V9.271a3.275 3.275 0 0 1 3.271-3.27Z"
+              ></path>
+            </svg>
+            <span class="count">4,739</span>
+          </div>
+
+          <!-- Share -->
+          <div class="action-btn">
+            <svg
+              aria-label="Share"
+              fill="none"
+              height="30"
+              viewBox="0 0 24 24"
+              width="30"
+            >
+              <path
+                d="M13.973 20.046 21.77 6.928C22.8 5.195 21.55 3 19.535 3H4.466C2.138 3 .984 5.825 2.646 7.456l4.842 4.752 1.723 7.121c.548 2.266 3.571 2.721 4.762.717Z"
+                stroke="white"
+                stroke-linejoin="round"
+                stroke-width="2.2"
+              ></path>
+              <line
+                stroke="white"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.2"
+                x1="7.488"
+                x2="15.515"
+                y1="12.208"
+                y2="7.641"
+              ></line>
+            </svg>
+            <span class="count">110K</span>
+          </div>
+
+          <!-- Save -->
+          <div class="action-btn">
+            <svg
+              aria-label="Save"
+              fill="none"
+              height="30"
+              viewBox="0 0 24 24"
+              width="30"
+            >
+              <polygon
+                points="20 21 12 13.44 4 21 4 3 20 3 20 21"
+                stroke="white"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.2"
+              ></polygon>
+            </svg>
+            <span class="count">40.5K</span>
+          </div>
+
+          <!-- Bottom Audio Cover Box (Matches Real IG App) -->
+          <!-- Alternates every 5 seconds between Two Lines and Profile Box -->
+          <div class="bottom-switcher">
+            <!-- State 1: Two Horizontal Lines (Long top, shorter bottom) -->
+            <div class="switch-item lines-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <line
+                  x1="4"
+                  y1="9"
+                  x2="20"
+                  y2="9"
+                  stroke="white"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                ></line>
+                <line
+                  x1="4"
+                  y1="15"
+                  x2="14"
+                  y2="15"
+                  stroke="white"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                ></line>
+              </svg>
+            </div>
+
+            <!-- State 2: Rounded Square Profile Thumbnail -->
+            <div class="switch-item audio-box">
+              <img src="profile_img1.jpg" alt="Audio" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Left Info & Smooth Floating Avatars -->
+        <div class="bottom-info" onclick="event.stopPropagation()">
+          <div class="floating-avatars">
+            <div class="float-item item-1">
+              <img src="float_img1.jpg" class="float-img" />
+              <span class="heart-badge">
+                <svg viewBox="0 0 48 48" width="18" height="18">
+                  <defs>
+                    <linearGradient
+                      id="hg1"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="100%"
+                    >
+                      <stop offset="0%" stop-color="#ff2a85" />
+                      <stop offset="100%" stop-color="#ff8a00" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    fill="url(#hg1)"
+                    d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
+                  />
                 </svg>
-                <span>Reels</span>
+              </span>
             </div>
 
-            <video id="reelVideo" autoplay loop playsinline muted>
-                <source src="reel.mp4" type="video/mp4">
-            </video>
-
-            <!-- Center Mute/Unmute Indicator -->
-            <div id="mute-indicator" class="mute-indicator">🔇</div>
-
-            <!-- Right Sidebar Icons (Exact Instagram Proportions) -->
-            <div class="right-sidebar" onclick="event.stopPropagation()">
-                <!-- Like -->
-                <div class="action-btn">
-                    <svg aria-label="Like" fill="#ff3040" height="30" viewBox="0 0 48 48" width="30">
-                        <path d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path>
-                    </svg>
-                    <span class="count">1M</span>
-                </div>
-
-                <!-- Comment -->
-                <div class="action-btn">
-                    <svg aria-label="Comment" fill="none" height="30" viewBox="0 0 24 24" width="30">
-                        <path d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z" stroke="white" stroke-linejoin="round" stroke-width="2.2"></path>
-                    </svg>
-                    <span class="count">3,628</span>
-                </div>
-
-                <!-- Repost -->
-                <div class="action-btn">
-                    <svg aria-label="Repost" fill="white" height="30" viewBox="0 0 24 24" width="30">
-                        <path d="M19.998 9.497a1 1 0 0 0-1 1v4.228a3.274 3.274 0 0 1-3.27 3.27h-5.313l1.791-1.787a1 1 0 0 0-1.412-1.416L7.29 18.287a1.004 1.004 0 0 0-.294.707v.001c0 .023.012.042.013.065a.923.923 0 0 0 .281.643l3.502 3.504a1 1 0 0 0 1.414-1.414l-1.797-1.798h5.318a5.276 5.276 0 0 0 5.27-5.27v-4.228a1 1 0 0 0-1-1Zm-6.41-3.496-1.795 1.795a1 1 0 1 0 1.414 1.414l3.5-3.5a1.003 1.003 0 0 0 0-1.417l-3.5-3.5a1 1 0 0 0-1.414 1.414l1.794 1.794H8.27A5.277 5.277 0 0 0 3 9.271V13.5a1 1 0 0 0 2 0V9.271a3.275 3.275 0 0 1 3.271-3.27Z"></path>
-                    </svg>
-                    <span class="count">4,739</span>
-                </div>
-
-                <!-- Share -->
-                <div class="action-btn">
-                    <svg aria-label="Share" fill="none" height="30" viewBox="0 0 24 24" width="30">
-                        <path d="M13.973 20.046 21.77 6.928C22.8 5.195 21.55 3 19.535 3H4.466C2.138 3 .984 5.825 2.646 7.456l4.842 4.752 1.723 7.121c.548 2.266 3.571 2.721 4.762.717Z" stroke="white" stroke-linejoin="round" stroke-width="2.2"></path>
-                        <line stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" x1="7.488" x2="15.515" y1="12.208" y2="7.641"></line>
-                    </svg>
-                    <span class="count">110K</span>
-                </div>
-
-                <!-- Save -->
-                <div class="action-btn">
-                    <svg aria-label="Save" fill="none" height="30" viewBox="0 0 24 24" width="30">
-                        <polygon points="20 21 12 13.44 4 21 4 3 20 3 20 21" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></polygon>
-                    </svg>
-                    <span class="count">40.5K</span>
-                </div>
-
-                <!-- Bottom Audio Cover Box (Matches Real IG App) -->
-                <!-- Alternates every 5 seconds between Two Lines and Profile Box -->
-                <div class="bottom-switcher">
-                    <!-- State 1: Two Horizontal Lines (Long top, shorter bottom) -->
-                    <div class="switch-item lines-icon">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                            <line x1="4" y1="9" x2="20" y2="9" stroke="white" stroke-width="2.5" stroke-linecap="round"></line>
-                            <line x1="4" y1="15" x2="14" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"></line>
-                        </svg>
-                    </div>
-
-                    <!-- State 2: Rounded Square Profile Thumbnail -->
-                    <div class="switch-item audio-box">
-                        <img src="profile_img1.jpg" alt="Audio">
-                    </div>
-                </div>
+            <div class="float-item item-2">
+              <img src="float_img2.jpg" class="float-img" />
+              <span class="heart-badge">
+                <svg viewBox="0 0 48 48" width="18" height="18">
+                  <path
+                    fill="url(#hg1)"
+                    d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
+                  />
+                </svg>
+              </span>
             </div>
 
-            <!-- Bottom Left Info & Smooth Floating Avatars -->
-            <div class="bottom-info" onclick="event.stopPropagation()">
-                <div class="floating-avatars">
-                    <div class="float-item item-1">
-                        <img src="float_img1.jpg" class="float-img">
-                        <span class="heart-badge">
-                            <svg viewBox="0 0 48 48" width="18" height="18">
-                                <defs>
-                                    <linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#ff2a85"/>
-                                        <stop offset="100%" stop-color="#ff8a00"/>
-                                    </linearGradient>
-                                </defs>
-                                <path fill="url(#hg1)" d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"/>
-                            </svg>
-                        </span>
-                    </div>
-
-                    <div class="float-item item-2">
-                        <img src="float_img2.jpg" class="float-img">
-                        <span class="heart-badge">
-                            <svg viewBox="0 0 48 48" width="18" height="18">
-                                <path fill="url(#hg1)" d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"/>
-                            </svg>
-                        </span>
-                    </div>
-
-                    <div class="float-item item-3">
-                        <img src="float_img3.jpg" class="float-img">
-                        <span class="heart-badge">
-                            <svg viewBox="0 0 48 48" width="18" height="18">
-                                <path fill="url(#hg1)" d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"/>
-                            </svg>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Profile Row -->
-                <div class="user-row">
-                    <div class="story-ring">
-                        <img src="profile_img1.jpg" class="profile-img">
-                    </div>
-                    <div class="user-meta">
-                        <span class="username">ab_comedy_182</span>
-                        <span class="audio-sub">♫ Original audio</span>
-                    </div>
-                    <button class="follow-btn">Follow</button>
-                </div>
-
-                <!-- Caption -->
-                <div class="caption">Watch till end 😂 ...</div>
+            <div class="float-item item-3">
+              <img src="float_img3.jpg" class="float-img" />
+              <span class="heart-badge">
+                <svg viewBox="0 0 48 48" width="18" height="18">
+                  <path
+                    fill="url(#hg1)"
+                    d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
+                  />
+                </svg>
+              </span>
             </div>
+          </div>
 
-            <!-- Bottom Video Scrubber / Progress Bar -->
-            <div id="scrubber-container" class="scrubber-container" onclick="event.stopPropagation()">
-                <div id="scrubber-time" class="scrubber-time">0:00 / 0:00</div>
-                <div class="scrubber-track">
-                    <div id="scrubber-fill" class="scrubber-fill">
-                        <div class="scrubber-thumb"></div>
-                    </div>
-                </div>
+          <!-- Profile Row -->
+          <div class="user-row">
+            <div class="story-ring">
+              <img src="profile_img1.jpg" class="profile-img" />
             </div>
+            <div class="user-meta">
+              <span class="username">ab_comedy_182</span>
+              <span class="audio-sub">♫ Original audio</span>
+            </div>
+            <button class="follow-btn">Follow</button>
+          </div>
+
+          <!-- Caption -->
+          <div class="caption">Watch till end 😂 ...</div>
         </div>
 
-        <!-- Hidden Admin Login Modal -->
-        <div id="admin-modal" class="modal" style="display:none;" onclick="event.stopPropagation()">
-            <h3>Admin Login</h3>
-            <input type="password" id="pin-input" placeholder="Enter PIN">
-            <div class="modal-actions">
-                <button class="submit-btn" onclick="attemptLogin()">Submit</button>
-                <button class="cancel-btn" onclick="closeAdminModal()">Close</button>
+        <!-- Bottom Video Scrubber / Progress Bar -->
+        <div
+          id="scrubber-container"
+          class="scrubber-container"
+          onclick="event.stopPropagation()"
+        >
+          <div id="scrubber-time" class="scrubber-time">0:00 / 0:00</div>
+          <div class="scrubber-track">
+            <div id="scrubber-fill" class="scrubber-fill">
+              <div class="scrubber-thumb"></div>
             </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Hidden Admin Login Modal -->
+      <div
+        id="admin-modal"
+        class="modal"
+        style="display: none"
+        onclick="event.stopPropagation()"
+      >
+        <h3>Admin Login</h3>
+        <input type="password" id="pin-input" placeholder="Enter PIN" />
+        <div class="modal-actions">
+          <button class="submit-btn" onclick="attemptLogin()">Submit</button>
+          <button class="cancel-btn" onclick="closeAdminModal()">Close</button>
+        </div>
+      </div>
     </div>
     <script src="script.js?v=3"></script>
-</body>
+  </body>
 </html>

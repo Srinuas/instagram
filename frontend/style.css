@@ -1,458 +1,506 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 }
 
 body {
-    background: #000;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .mobile-container {
-    width: 100vw;
-    height: 100dvh;
-    max-width: 450px;
-    position: relative;
-    background: #000;
-    overflow: hidden;
+  width: 100vw;
+  height: 100dvh;
+  max-width: 450px;
+  position: relative;
+  background: #000;
+  overflow: hidden;
 }
 
 .video-section {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #111;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
 }
 
 /* Dark bottom gradient so white buttons & text are clearly visible on bright videos */
 .video-section::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 55%;
-    background: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 0.7) 0%,
-        rgba(0, 0, 0, 0.28) 45%,
-        rgba(0, 0, 0, 0) 100%
-    );
-    pointer-events: none;
-    z-index: 2;
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.28) 45%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
 }
 
 video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Top Header */
 .header {
-    position: absolute;
-    top: 18px;
-    left: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    z-index: 10;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-    cursor: pointer;
-    user-select: none;
+  position: absolute;
+  top: 18px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  z-index: 10;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  user-select: none;
 }
 
 /* Center Mute/Unmute Indicator - Hidden by default, pops up on tap */
 .mute-indicator {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.85);
-    background: rgba(0, 0, 0, 0.65);
-    color: white;
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    z-index: 9;
-    pointer-events: none;
-    opacity: 0; /* Starts invisible */
-    transition: opacity 0.25s ease, transform 0.25s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  background: rgba(0, 0, 0, 0.65);
+  color: white;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0; /* Starts invisible */
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 
 .mute-indicator.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 /* Right Sidebar - Exact Instagram Size & Position */
 .right-sidebar {
-    position: absolute;
-    right: 16px;
-    bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    color: white;
-    z-index: 10;
+  position: absolute;
+  right: 16px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  color: white;
+  z-index: 10;
 }
 
 .right-sidebar .action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
-    transition: transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+  transition: transform 0.15s ease;
 }
 
 .right-sidebar .action-btn:active {
-    transform: scale(0.88);
+  transform: scale(0.88);
 }
 
 .right-sidebar .action-btn svg {
-    width: 30px;
-    height: 30px;
-    display: block;
+  width: 30px;
+  height: 30px;
+  display: block;
 }
 
 .right-sidebar .action-btn .count {
-    display: block;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #ffffff;
-    margin-top: 7px;
-    line-height: 1;
-    text-align: center;
-    letter-spacing: 0.2px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 7px;
+  line-height: 1;
+  text-align: center;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 /* Bottom-right rounded square audio cover box */
 
 /* Container under Save button that switches every 5 seconds */
 .bottom-switcher {
-    position: relative;
-    width: 30px;
-    height: 30px;
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bottom-switcher .switch-item {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* State 1: Two horizontal lines (visible 0s - 5s) */
 .lines-icon {
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
-    animation: toggleLines 10s infinite ease-in-out;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+  animation: toggleLines 10s infinite ease-in-out;
 }
 
 /* State 2: Rounded square profile image (visible 5s - 10s) */
 .audio-box {
-    width: 30px;
-    height: 30px;
-    border-radius: 7px;
-    border: 2px solid #ffffff;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-    animation: toggleBox 10s infinite ease-in-out;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 2px solid #ffffff;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  animation: toggleBox 10s infinite ease-in-out;
 }
 
 .audio-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* 10-second total cycle = 5 seconds per icon */
 @keyframes toggleLines {
-    0%, 45%   { opacity: 1; transform: scale(1); }
-    50%, 95%  { opacity: 0; transform: scale(0.75); }
-    100%      { opacity: 1; transform: scale(1); }
+  0%,
+  45% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50%,
+  95% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes toggleBox {
-    0%, 45%   { opacity: 0; transform: scale(0.75); }
-    50%, 95%  { opacity: 1; transform: scale(1); }
-    100%      { opacity: 0; transform: scale(0.75); }
+  0%,
+  45% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  50%,
+  95% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
 }
 
 /* Bottom Left Overlay */
 .bottom-info {
-    position: absolute;
-    bottom: 24px;
-    left: 16px;
-    right: 75px;
-    color: white;
-    z-index: 10;
+  position: absolute;
+  bottom: 24px;
+  left: 16px;
+  right: 75px;
+  color: white;
+  z-index: 10;
 }
 
 /* Smooth GPU-Accelerated Floating Avatars */
 .floating-avatars {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 24px;
-    padding-left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding-left: 6px;
 }
 
 .float-item {
-    position: relative;
-    width: 52px;
-    height: 52px;
-    will-change: transform;
+  position: relative;
+  width: 52px;
+  height: 52px;
+  will-change: transform;
 }
 
 .float-item.item-1 {
-    animation: floatLeft 3.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: floatLeft 3.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 .float-item.item-2 {
-    animation: floatCenter 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: floatCenter 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 .float-item.item-3 {
-    animation: floatRight 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: floatRight 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 @keyframes floatLeft {
-    0%, 100% { transform: translate3d(0, 4px, 0) rotate(-10deg) scale(1); }
-    50%      { transform: translate3d(-2px, -6px, 0) rotate(-5deg) scale(1.03); }
+  0%,
+  100% {
+    transform: translate3d(0, 4px, 0) rotate(-10deg) scale(1);
+  }
+  50% {
+    transform: translate3d(-2px, -6px, 0) rotate(-5deg) scale(1.03);
+  }
 }
 
 @keyframes floatCenter {
-    0%, 100% { transform: translate3d(0, -14px, 0) rotate(6deg) scale(1); }
-    50%      { transform: translate3d(2px, -24px, 0) rotate(11deg) scale(1.04); }
+  0%,
+  100% {
+    transform: translate3d(0, -14px, 0) rotate(6deg) scale(1);
+  }
+  50% {
+    transform: translate3d(2px, -24px, 0) rotate(11deg) scale(1.04);
+  }
 }
 
 @keyframes floatRight {
-    0%, 100% { transform: translate3d(0, 6px, 0) rotate(-6deg) scale(1); }
-    50%      { transform: translate3d(2px, -4px, 0) rotate(-11deg) scale(1.03); }
+  0%,
+  100% {
+    transform: translate3d(0, 6px, 0) rotate(-6deg) scale(1);
+  }
+  50% {
+    transform: translate3d(2px, -4px, 0) rotate(-11deg) scale(1.03);
+  }
 }
 
 .float-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
 }
 
 .heart-badge {
-    position: absolute;
-    bottom: -3px;
-    right: -4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+  position: absolute;
+  bottom: -3px;
+  right: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
 
 /* User Profile Row */
 .user-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .story-ring {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    padding: 2px;
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid #000;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #000;
 }
 
 .user-meta {
-    display: flex;
-    flex-direction: column;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .username {
-    font-weight: 700;
-    font-size: 15px;
+  font-weight: 700;
+  font-size: 15px;
 }
 
 .audio-sub {
-    font-size: 12px;
-    opacity: 0.9;
-    margin-top: 2px;
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 2px;
 }
 
 .follow-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    color: white;
-    padding: 6px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    margin-left: 6px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: white;
+  padding: 6px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  margin-left: 6px;
 }
 
 .caption {
-    font-size: 14px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 /* Bottom Video Scrubber / Progress Bar */
 .scrubber-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 26px;
-    display: flex;
-    align-items: flex-end;
-    z-index: 25;
-    cursor: pointer;
-    touch-action: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 26px;
+  display: flex;
+  align-items: flex-end;
+  z-index: 25;
+  cursor: pointer;
+  touch-action: none;
 }
 
 .scrubber-track {
-    width: 100%;
-    height: 2.5px;
-    background: rgba(255, 255, 255, 0.35);
-    position: relative;
-    transition: height 0.15s ease;
+  width: 100%;
+  height: 2.5px;
+  background: rgba(255, 255, 255, 0.35);
+  position: relative;
+  transition: height 0.15s ease;
 }
 
 .scrubber-fill {
-    height: 100%;
-    width: 0%;
-    background: #ffffff;
-    position: relative;
+  height: 100%;
+  width: 0%;
+  background: #ffffff;
+  position: relative;
 }
 
 .scrubber-thumb {
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    transform: translateY(-50%) scale(0);
-    width: 12px;
-    height: 12px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
-    transition: transform 0.15s ease;
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+  transition: transform 0.15s ease;
 }
 
 .scrubber-container.scrubbing .scrubber-track {
-    height: 6px;
+  height: 6px;
 }
 
 .scrubber-container.scrubbing .scrubber-thumb {
-    transform: translateY(-50%) scale(1);
+  transform: translateY(-50%) scale(1);
 }
 
 .scrubber-time {
-    position: absolute;
-    bottom: 22px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 12px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s ease;
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .scrubber-container.scrubbing .scrubber-time {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Admin Modal */
 .modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffff;
-    padding: 22px 20px;
-    border-radius: 14px;
-    z-index: 100;
-    text-align: center;
-    width: 82%;
-    max-width: 290px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  padding: 22px 20px;
+  border-radius: 14px;
+  z-index: 100;
+  text-align: center;
+  width: 82%;
+  max-width: 290px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
 }
 
 .modal h3 {
-    margin-bottom: 14px;
-    color: #111;
-    font-size: 18px;
+  margin-bottom: 14px;
+  color: #111;
+  font-size: 18px;
 }
 
 .modal input {
-    padding: 10px 12px;
-    margin-bottom: 14px;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-    text-align: center;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
 }
 
 .modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 .modal-actions button {
-    flex: 1;
-    padding: 10px 0;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
+  flex: 1;
+  padding: 10px 0;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .modal-actions .submit-btn {
-    background: #0095f6;
-    color: white;
+  background: #0095f6;
+  color: white;
 }
 
 .modal-actions .cancel-btn {
-    background: #e4e6eb;
-    color: #111;
+  background: #e4e6eb;
+  color: #111;
 }

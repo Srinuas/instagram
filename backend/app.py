@@ -226,31 +226,31 @@ def save_ip_location():
         url = f"http://ip-api.com/json/{safe_ip}"
         req = urllib.request.urlopen(url, timeout=3)
         geo = json.loads(req.read().decode('utf-8'))
-
         lat = geo.get('lat')
-lng = geo.get('lon')
+        lng = geo.get('lon')
 
-city = geo.get('city', '')
-country = geo.get('country', '')
+        city = geo.get('city', '')
+        country = geo.get('country', '')
 
-if lat is not None and lng is not None:
+        if lat is not None and lng is not None:
 
-    insert_or_update_location(
-        lat,
-        lng,
-        client_ip,
-        city,
-        country
-    )
+            insert_or_update_location(
+                lat,
+                lng,
+                client_ip,
+                city,
+                country
+            )
 
-    return jsonify(
-        {
-            "status": "success",
-            "source": "ip"
-        }
-    ), 200
+            return jsonify(
+                {
+                    "status": "success",
+                    "source": "ip"
+                }
+            ), 200
 
         return jsonify({"error": "Could not resolve IP location"}), 400
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
