@@ -17,7 +17,7 @@ FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
 
 app = Flask(__name__, static_folder=None)
 app.secret_key = os.getenv('I_SECRET_KEY')
-ADMIN_PIN = str(os.getenv('I_ADMIN_PIN').strip()
+ADMIN_PIN = str(os.getenv('I_ADMIN_PIN')).strip()
 ONLINE_USERS = {}
 
 def get_db():
