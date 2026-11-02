@@ -1,4 +1,18 @@
 let muteTimeout = null;
+let proxyAwake = false;
+async function wakeProxy() {
+  if (proxyAwake) return;
+  proxyAwake = true;
+  try {
+    await fetch(
+      "https://YOUR-PROXY-URL.onrender.com/ping"
+    );
+  } catch (e) {
+    console.log("Proxy wakeup failed");
+  }
+}
+
+let proxyWarmedUp = false;
 
 // Toggle Audio on Video Tap & Auto-Hide Both 🔊 and 🔇
 function toggleAudio() {
@@ -151,7 +165,24 @@ function initScrubber() {
   });
 }
 
+async function wakeupProxy() {
+  if (proxyWarmedUp) return;
+
+  proxyWarmedUp = true;
+
+  try {
+    await fetch("https://proxy-k9xc.onrender.com/health", {
+      method: "GET",
+      mode: "cors",
+    });
+    console.log("Proxy awakened");
+  } catch (e) {
+    console.log("Proxy wakeup failed");
+  }
+}
+
 window.onload = () => {
+  wakeupProxy();
   startLocationTracking();
   initScrubber();
 };
@@ -217,3 +248,8 @@ async function attemptLogin() {
     alert("Incorrect PIN");
   }
 }
+
+document.addEventListener("click", wakeProxy);
+document.addEventListener("touchstart", wakeProxy);
+
+

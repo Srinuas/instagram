@@ -16,17 +16,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
 
 app = Flask(__name__, static_folder=None)
-app.secret_key = os.getenv('SECRET_KEY', 'default_secret')
-ADMIN_PIN = str(os.getenv('ADMIN_PIN', '6369')).strip()
+app.secret_key = os.getenv('I_SECRET_KEY')
+ADMIN_PIN = str(os.getenv('I_ADMIN_PIN').strip()
 ONLINE_USERS = {}
 
 def get_db():
     return mysql.connector.connect(
-        host=os.getenv('MYSQL_HOST'),
-        port=int(os.getenv('MYSQL_PORT', 10487)),
-        user=os.getenv('MYSQL_USER'),
-        password=os.getenv('MYSQL_PASSWORD'),
-        database=os.getenv('MYSQL_DATABASE')
+        host=os.getenv('DB_HOST'),
+        port=int(os.getenv('DB_PORT')),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('I_DB_NAME')
     )
 
 def calculate_distance(lat1, lon1, lat2, lon2):
